@@ -156,6 +156,11 @@
         </div>
       </div>
 
+      <input class="modal-input" id="profile-pin-input" type="text"
+             inputmode="numeric" pattern="\d*" maxlength="4"
+             placeholder="Geheimcode (4 Ziffern)" autocomplete="off">
+      <p class="modal-hint">Mit diesem Code meldet sich dein Kind an.</p>
+
       <p class="modal-error hidden" id="profile-error"></p>
 
       <div class="modal-actions">
@@ -760,7 +765,7 @@
   <div class="screen" id="screen-parent-gate">
     <header class="screen-header">
       <button class="back-btn" id="pin-back">←</button>
-      <h2>Eltern-Bereich</h2>
+      <h2 id="pin-gate-title">Eltern-Bereich</h2>
       <div></div>
     </header>
     <div class="pin-gate">

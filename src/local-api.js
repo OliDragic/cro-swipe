@@ -52,6 +52,7 @@ const LocalAPI = {
       badges:        p.badges || [],
       daily_goal:    p.daily_goal || { date: null, count: 0 },
       settings:      { ...this.DEFAULT_SETTINGS, ...(p.settings || {}) },
+      pin:           p.pin || null,
     };
   },
 
@@ -103,6 +104,7 @@ const LocalAPI = {
     const profile = {
       id: this._uid(),
       name, avatar, age,
+      pin: /^\d{4}$/.test(String(payload.pin || '')) ? String(payload.pin) : null,
       xp: 0,
       streak: 0,
       best_streak: 0,
@@ -140,6 +142,10 @@ const LocalAPI = {
 
     for (const field of ['xp', 'streak', 'best_streak', 'last_played', 'name', 'avatar']) {
       if (field in payload) profile[field] = payload[field];
+    }
+
+    if ('pin' in payload && /^\d{4}$/.test(String(payload.pin || ''))) {
+      profile.pin = String(payload.pin);
     }
 
     if (payload.word_progress) {

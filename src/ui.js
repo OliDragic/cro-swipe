@@ -530,18 +530,60 @@ function renderProfiles() {
     arrowEl.textContent = '›';
 
     card.append(avatarEl, infoEl, arrowEl);
-    card.addEventListener('click', () => activateProfile(p.id));
+    card.addEventListener('click', () => unlockProfile(p));
     grid.appendChild(card);
   });
 
-  // Add profile button (if < 4 profiles)
+  // Add profile button (if < 4 profiles) — nur Eltern dürfen Profile anlegen
   if (state.profiles.length < 4) {
     const add = document.createElement('button');
     add.className = 'profile-card profile-card-add';
     add.innerHTML = '➕ Profil erstellen';
-    add.addEventListener('click', () => showCreateProfile());
+    add.addEventListener('click', () => openPinGate({
+      subtitle: _parentPin
+        ? 'Eltern-PIN eingeben, um ein Profil anzulegen'
+        : 'Zuerst Eltern-PIN erstellen (4 Ziffern)',
+      onSuccess: () => { navigate('profiles'); showCreateProfile(); },
+    }));
     grid.appendChild(add);
   }
+}
+
+/* Profil antippen → Geheimcode des Kindes abfragen.
+   Ältere Profile ohne Code: Eltern-PIN, dann einmalig Code festlegen. */
+function unlockProfile(p) {
+  if (p.pin) {
+    openPinGate({
+      mode: 'child',
+      expected: p.pin,
+      title: `${p.avatar} ${p.name}`,
+      subtitle: 'Dein Geheimcode',
+      onSuccess: () => activateProfile(p.id),
+    });
+    return;
+  }
+  openPinGate({
+    subtitle: _parentPin
+      ? 'Eltern-PIN — danach Geheimcode für dieses Profil festlegen'
+      : 'Zuerst Eltern-PIN erstellen (4 Ziffern)',
+    onSuccess: () => openPinGate({
+      mode: 'set',
+      title: `${p.avatar} ${p.name}`,
+      subtitle: 'Neuen Geheimcode festlegen (4 Ziffern)',
+      onSet: async (code) => {
+        try {
+          await api(`/api/profiles/${p.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ pin: code }),
+          });
+          p.pin = code;
+        } catch (e) {
+          console.warn('Code speichern fehlgeschlagen:', e.message);
+        }
+        activateProfile(p.id);
+      },
+    }),
+  });
 }
 
 async function activateProfile(profileId) {
@@ -647,6 +689,7 @@ function showCreateProfile() {
 
   // Reset modal state
   nameInput.value = '';
+  document.getElementById('profile-pin-input').value = '';
   errorEl.classList.add('hidden');
   errorEl.textContent = '';
   document.querySelectorAll('.avatar-opt').forEach(b => b.classList.remove('selected'));
@@ -677,12 +720,19 @@ function saveNewProfile() {
   const avatar = document.querySelector('.avatar-opt.selected')?.dataset.avatar || '🦊';
   const age = parseInt(document.querySelector('.age-btn.selected')?.dataset.age || '8', 10);
 
+  const pin = document.getElementById('profile-pin-input').value.trim();
+  if (!/^\d{4}$/.test(pin)) {
+    errorEl.textContent = 'Bitte einen Geheimcode aus genau 4 Ziffern vergeben.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
   const btn = document.getElementById('btn-save-profile');
   btn.disabled = true;
 
   api('/api/profiles', {
     method: 'POST',
-    body: JSON.stringify({ name, avatar, age }),
+    body: JSON.stringify({ name, avatar, age, pin }),
   }).then(data => {
     state.profiles.push(data.profile);
     renderProfiles();
@@ -1036,12 +1086,27 @@ async function saveSettings() {
 let _parentPin = localStorage.getItem('cs_parent_pin') || null;
 let _pinEntered = '';
 
-function openPinGate() {
+/* Das Numpad dient drei Zwecken:
+   - mode 'parent': Eltern-PIN prüfen (bzw. beim allerersten Mal anlegen)
+   - mode 'child':  Geheimcode eines Kinderprofils prüfen (expected)
+   - mode 'set':    einen neuen 4-stelligen Code einsammeln (onSet) */
+let _pinGate = { mode: 'parent', expected: null, onSuccess: null, onSet: null };
+
+function openPinGate(opts = {}) {
+  _pinGate = {
+    mode: opts.mode || 'parent',
+    expected: opts.expected ?? null,
+    onSuccess: opts.onSuccess || (() => { renderParentDashboard(); navigate('parent'); }),
+    onSet: opts.onSet || null,
+  };
   _pinEntered = '';
   updatePinDots();
   document.getElementById('pin-error').classList.add('hidden');
-  document.getElementById('pin-subtitle').textContent =
-    _parentPin ? 'PIN eingeben' : 'Neuen PIN erstellen (4 Ziffern)';
+  document.getElementById('pin-gate-title').textContent = opts.title || 'Eltern-Bereich';
+  document.getElementById('pin-subtitle').textContent = opts.subtitle
+    || (_pinGate.mode === 'parent' && !_parentPin
+        ? 'Eltern-PIN erstellen (4 Ziffern)'
+        : 'PIN eingeben');
   navigate('parent-gate');
 }
 
@@ -1056,34 +1121,39 @@ function handlePinInput(num) {
   if (_pinEntered.length >= 4) return;
   _pinEntered += num;
   updatePinDots();
+  if (_pinEntered.length !== 4) return;
 
-  if (_pinEntered.length === 4) {
-    setTimeout(() => {
-      if (!_parentPin) {
-        // Set new PIN
-        _parentPin = _pinEntered;
-        localStorage.setItem('cs_parent_pin', _parentPin);
-        _pinEntered = '';
-        updatePinDots();
-        renderParentDashboard();
-        navigate('parent');
-      } else if (_pinEntered === _parentPin) {
-        _pinEntered = '';
-        updatePinDots();
-        renderParentDashboard();
-        navigate('parent');
-      } else {
-        document.getElementById('pin-error').classList.remove('hidden');
-        _pinEntered = '';
-        updatePinDots();
-        // Shake animation on dots
-        document.getElementById('pin-dots').animate(
-          [{ transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
-          { duration: 300 }
-        );
-      }
-    }, 200);
-  }
+  setTimeout(() => {
+    const entered = _pinEntered;
+    _pinEntered = '';
+    updatePinDots();
+
+    // Neuen Code einsammeln (Kind-Geheimcode festlegen)
+    if (_pinGate.mode === 'set') {
+      _pinGate.onSet?.(entered);
+      return;
+    }
+
+    // Allererste Nutzung: Eltern-PIN wird angelegt statt geprüft
+    if (_pinGate.mode === 'parent' && !_parentPin) {
+      _parentPin = entered;
+      localStorage.setItem('cs_parent_pin', entered);
+      _pinGate.onSuccess();
+      return;
+    }
+
+    const expected = _pinGate.mode === 'parent' ? _parentPin : _pinGate.expected;
+    if (entered === expected) {
+      _pinGate.onSuccess();
+    } else {
+      document.getElementById('pin-error').classList.remove('hidden');
+      // Shake animation on dots
+      document.getElementById('pin-dots').animate(
+        [{ transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
+        { duration: 300 }
+      );
+    }
+  }, 200);
 }
 
 /* ════════════════════════════════════════
