@@ -1309,6 +1309,31 @@ function _renderParentProfile(p) {
   }
   container.appendChild(badgeSection);
 
+  // ── Profil verwalten (Eltern-Bereich ist bereits PIN-geschützt) ──
+  const manageSection = document.createElement('div');
+  manageSection.className = 'pd-section';
+  manageSection.innerHTML = '<h3>⚙️ Profil verwalten</h3>';
+  const delBtn = document.createElement('button');
+  delBtn.className = 'danger-btn pd-delete-btn';
+  delBtn.textContent = `🗑️ Profil von ${p.name} löschen`;
+  delBtn.addEventListener('click', async () => {
+    if (!confirm(`Profil von ${p.name} wirklich löschen? Alle Fortschritte gehen verloren.`)) return;
+    try {
+      await api(`/api/profiles/${p.id}`, { method: 'DELETE' });
+      if (state.profile?.id === p.id) state.profile = null;
+      await loadProfilesAndRender();
+      if (state.profiles.length) {
+        renderParentDashboard();
+      } else {
+        navigate('profiles');
+      }
+    } catch (e) {
+      alert('Löschen fehlgeschlagen: ' + e.message);
+    }
+  });
+  manageSection.appendChild(delBtn);
+  container.appendChild(manageSection);
+
   // ── Learning tips ──
   const tips = _generateLearningTips(p, weak, entries);
   if (tips.length) {

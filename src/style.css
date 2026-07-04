@@ -3165,3 +3165,6 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
   margin: -6px 0 4px;
   text-align: left;
 }
+
+/* ═══ Eltern-Dashboard: Profil-Verwaltung ═══ */
+.pd-delete-btn { width: 100%; margin-top: 4px; }

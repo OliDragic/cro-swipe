@@ -1497,6 +1497,10 @@ function handleBitiChoice(btn, chosen, correct) {
   document.querySelectorAll('#biti-choices .biti-choice-btn').forEach(b => b.classList.add('disabled'));
 
   const fullForm = correct.full || `${correct.pronoun_hr} ${correct.hr}`;
+  // Fälle-Quiz: den vollständigen Satz vorlesen (vorgenerierte Satz-MP3)
+  if (correct.full && AudioManager.enabled) {
+    setTimeout(() => AudioManager.speakText(correct.full, 'hr'), 300);
+  }
   const feedbackEl = document.getElementById('biti-feedback');
   feedbackEl.className = `biti-feedback ${isCorrect ? 'correct' : 'wrong'}`;
   document.getElementById('biti-feedback-text').textContent = isCorrect

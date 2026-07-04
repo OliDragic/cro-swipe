@@ -151,22 +151,40 @@ const AudioManager = {
 
     if (lang === 'hr' && this.playBoth) {
       const delay = this.slowMode ? 2800 : 1800;
-      setTimeout(() => {
+      setTimeout(async () => {
         if (!this.enabled) return;
-        this._speakSynth(word.german, 'de');
+        // Auch die deutsche Übersetzung als MP3 (neuronale Stimme) — Synthese nur als Fallback
+        const ok = await this._tryFile(word.id, 'de');
+        if (!ok) this._speakSynth(word.german, 'de');
       }, delay);
     }
   },
 
-  // Speak any text (e.g. character guide examples)
-  speakText(text, lang = 'hr') {
+  // Speak any text (e.g. sentences, character guide examples).
+  // Für feste kroatische Sätze existieren vorgenerierte MP3s unter
+  // audio/sent/<hash>.mp3 — Synthese ist nur noch der Fallback.
+  async speakText(text, lang = 'hr') {
     if (!this.enabled) return;
     this.stop();
+    if (lang === 'hr') {
+      const ok = await this._tryUrl(`audio/sent/${this._sentHash(text)}.mp3`);
+      if (ok) return;
+    }
     this._speakSynth(text, lang);
   },
 
-  async _tryFile(wordId, lang) {
-    const url = `audio/${lang}/${wordId}.mp3`;
+  // djb2-Hash über UTF-8-Bytes — identisch im Generator-Workflow (Python)
+  _sentHash(text) {
+    let h = 5381;
+    for (const b of new TextEncoder().encode(text)) h = ((h * 33) ^ b) >>> 0;
+    return h.toString(16);
+  },
+
+  _tryFile(wordId, lang) {
+    return this._tryUrl(`audio/${lang}/${wordId}.mp3`);
+  },
+
+  async _tryUrl(url) {
     if (this._cache[url] === false) return false;       // known 404
 
     return new Promise(resolve => {

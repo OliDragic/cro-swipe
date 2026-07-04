@@ -9,7 +9,13 @@ on:
     paths:
       - '.github/workflows/regenerate-audio.yml'
       - 'content/words.csv'
+      - 'content/sentences.txt'
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Alle Dateien neu generieren (auch vorhandene)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -33,20 +39,49 @@ jobs:
         run: pip install edge-tts
 
       - name: Generate audio files
+        env:
+          FORCE_REGEN: ${{ inputs.force && 'true' || 'false' }}
         run: |
           cat > /tmp/gen_audio.py <<'PYEOF'
-          import asyncio, csv, sys
+          import asyncio, csv, os, sys
           import edge_tts
 
           VOICES = {"hr": "hr-HR-GabrijelaNeural", "de": "de-DE-KatjaNeural"}
           RATE = "-10%"   # etwas langsamer — besser zum Nachsprechen für Kinder
 
+          def sent_hash(text):
+              """djb2 über UTF-8-Bytes — identisch zu _sentHash in src/audio.js"""
+              h = 5381
+              for b in text.encode("utf-8"):
+                  h = ((h * 33) ^ b) & 0xFFFFFFFF
+              return format(h, "x")
+
+          FORCE = os.environ.get("FORCE_REGEN") == "true"
+
           async def gen(sem, word_id, text, lang):
               async with sem:
                   out = f"audio/{lang}/{word_id}.mp3"
+                  if not FORCE and os.path.exists(out) and os.path.getsize(out) > 0:
+                      return True   # schon vorhanden — nur Neues generieren
                   for attempt in range(3):
                       try:
                           c = edge_tts.Communicate(text, VOICES[lang], rate=RATE)
+                          await c.save(out)
+                          return True
+                      except Exception as e:
+                          if attempt == 2:
+                              print(f"FEHLER {out}: {e}", file=sys.stderr)
+                              return False
+                          await asyncio.sleep(2 * (attempt + 1))
+
+          async def gen_sentence(sem, text):
+              async with sem:
+                  out = f"audio/sent/{sent_hash(text)}.mp3"
+                  if not FORCE and os.path.exists(out) and os.path.getsize(out) > 0:
+                      return True
+                  for attempt in range(3):
+                      try:
+                          c = edge_tts.Communicate(text, VOICES["hr"], rate=RATE)
                           await c.save(out)
                           return True
                       except Exception as e:
@@ -65,6 +100,12 @@ jobs:
                   de = r["word_de"].strip()
                   if wid and hr: tasks.append(gen(sem, wid, hr, "hr"))
                   if wid and de: tasks.append(gen(sem, wid, de, "de"))
+              # Feste Sätze (Puzzle, Fälle-Quiz) als MP3 statt Roboter-Synthese
+              if os.path.exists("content/sentences.txt"):
+                  os.makedirs("audio/sent", exist_ok=True)
+                  for line in open("content/sentences.txt", encoding="utf-8"):
+                      s = line.strip()
+                      if s: tasks.append(gen_sentence(sem, s))
               results = await asyncio.gather(*tasks)
               ok, bad = sum(results), len(results) - sum(results)
               print(f"Fertig: {ok} ok, {bad} fehlgeschlagen von {len(results)}")

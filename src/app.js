@@ -42,7 +42,14 @@ function wireEvents() {
   document.getElementById('btn-edit-profile').addEventListener('click', showEditProfile);
   document.getElementById('btn-cancel-edit').addEventListener('click', hideEditProfile);
   document.getElementById('btn-save-edit').addEventListener('click', saveEditProfile);
-  document.getElementById('btn-delete-profile').addEventListener('click', deleteProfile);
+  // Löschen ist Elternsache: Modal schließen, PIN abfragen, dann löschen
+  document.getElementById('btn-delete-profile').addEventListener('click', () => {
+    hideEditProfile();
+    openPinGate({
+      subtitle: 'Eltern-PIN — Profil löschen',
+      onSuccess: () => deleteProfile(),
+    });
+  });
   document.getElementById('modal-edit-profile').addEventListener('click', e => {
     if (e.target === e.currentTarget) hideEditProfile();
   });

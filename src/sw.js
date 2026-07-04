@@ -5,7 +5,7 @@
    the domain root (local Flask) and under a subpath (GitHub Pages).
    ═══════════════════════════════════════════════════════ */
 
-const CACHE = 'cro-swipe-v12';
+const CACHE = 'cro-swipe-v13';
 
 const PRECACHE = [
   './',
@@ -72,14 +72,14 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // All other static assets: Cache-first
+  // App-Dateien: Network-first — Updates kommen sofort an,
+  // der Cache dient nur noch als Offline-Fallback
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(res => {
-        if (res.ok) caches.open(CACHE).then(c => c.put(request, res.clone()));
-        return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+    fetch(request).then(res => {
+      if (res.ok) caches.open(CACHE).then(c => c.put(request, res.clone()));
+      return res;
+    }).catch(() =>
+      caches.match(request).then(cached => cached || caches.match('./index.html'))
+    )
   );
 });
