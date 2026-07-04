@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cro Swipe">
+  <meta name="theme-color" content="#FF6B35">
+  <title>Cro Swipe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+
+  <!-- iOS "Add to Home Screen" banner -->
+  <div class="a2hs-banner hidden" id="a2hs-banner">
+    <span class="a2hs-icon">🇭🇷</span>
+    <div class="a2hs-text">
+      <strong>Als App installieren</strong>
+      <span>Tippe auf <strong>□↑</strong> → „Zum Home-Bildschirm"</span>
+    </div>
+    <button class="a2hs-close" id="a2hs-close" aria-label="Schließen">✕</button>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 1: Profil-Auswahl
+  ════════════════════════════════════ -->
+  <div class="screen active" id="screen-profiles">
+    <div class="profiles-hero">
+      <div class="logo">
+        <span class="logo-flag">🇭🇷</span>
+        <h1>Cro Swipe</h1>
+        <p>Kroatisch lernen — Karte für Karte</p>
+      </div>
+    </div>
+    <div class="profiles-grid" id="profiles-grid">
+      <!-- Profile cards dynamisch per JS -->
+    </div>
+    <div class="profiles-footer">
+      <button class="parent-btn" id="btn-parent-gate">🔐 Eltern-Bereich</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODAL: Profil bearbeiten
+  ════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modal-edit-profile">
+    <div class="modal-card">
+      <h2 class="modal-title">Profil bearbeiten</h2>
+      <div class="avatar-picker" id="edit-avatar-picker">
+        <button class="avatar-opt" data-avatar="🦊">🦊</button>
+        <button class="avatar-opt" data-avatar="🐼">🐼</button>
+        <button class="avatar-opt" data-avatar="🦁">🦁</button>
+        <button class="avatar-opt" data-avatar="🦄">🦄</button>
+        <button class="avatar-opt" data-avatar="🐬">🐬</button>
+        <button class="avatar-opt" data-avatar="🐙">🐙</button>
+        <button class="avatar-opt" data-avatar="🦋">🦋</button>
+        <button class="avatar-opt" data-avatar="🐸">🐸</button>
+      </div>
+      <input class="modal-input" id="edit-name-input" type="text"
+             placeholder="Dein Name" maxlength="20" autocomplete="off"
+             autocorrect="off" autocapitalize="words" spellcheck="false">
+      <p class="modal-error hidden" id="edit-profile-error"></p>
+      <div class="modal-actions">
+        <button class="secondary-btn" id="btn-cancel-edit">Abbrechen</button>
+        <button class="primary-btn" id="btn-save-edit">Speichern ✓</button>
+      </div>
+      <div style="margin-top:12px;text-align:center">
+        <button class="danger-btn" id="btn-delete-profile">Profil löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       FEEDBACK BUTTON (fixed, during games)
+  ════════════════════════════════════ -->
+  <button id="feedback-btn" class="feedback-fab hidden" title="Fehler melden / Idee einreichen">💬</button>
+
+  <!-- ════════════════════════════════════
+       MODAL: Feedback
+  ════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modal-feedback">
+    <div class="modal-card">
+      <h2 class="modal-title">Feedback</h2>
+
+      <!-- Tab switcher -->
+      <div class="feedback-tabs">
+        <button class="feedback-tab active" id="tab-bug" data-tab="bug">🐛 Fehler melden</button>
+        <button class="feedback-tab" id="tab-idea" data-tab="idea">💡 Idee einreichen</button>
+      </div>
+
+      <!-- Bug panel -->
+      <div id="feedback-panel-bug">
+        <p class="modal-label">Was ist falsch?</p>
+        <div class="feedback-chips" id="feedback-chips">
+          <button class="chip" data-cat="pronunciation">🔊 Aussprache</button>
+          <button class="chip" data-cat="word">📝 Wort falsch</button>
+          <button class="chip" data-cat="grammar">📖 Grammatik</button>
+          <button class="chip" data-cat="other">❓ Sonstiges</button>
+        </div>
+        <div id="feedback-context-info" class="feedback-context hidden"></div>
+        <textarea class="modal-input feedback-textarea" id="feedback-bug-text"
+          placeholder="Beschreibung (optional)..." rows="3" maxlength="500"></textarea>
+      </div>
+
+      <!-- Idea panel -->
+      <div id="feedback-panel-idea" class="hidden">
+        <textarea class="modal-input feedback-textarea" id="feedback-idea-text"
+          placeholder="Deine Idee oder dein Verbesserungsvorschlag..." rows="5" maxlength="500"></textarea>
+      </div>
+
+      <p class="modal-error hidden" id="feedback-error"></p>
+      <div class="modal-actions">
+        <button class="secondary-btn" id="btn-feedback-cancel">Abbrechen</button>
+        <button class="primary-btn" id="btn-feedback-send">Senden ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODAL: Profil erstellen
+  ════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modal-create-profile">
+    <div class="modal-card">
+      <h2 class="modal-title">Neues Profil</h2>
+
+      <div class="avatar-picker" id="avatar-picker">
+        <button class="avatar-opt selected" data-avatar="🦊">🦊</button>
+        <button class="avatar-opt" data-avatar="🐼">🐼</button>
+        <button class="avatar-opt" data-avatar="🦁">🦁</button>
+        <button class="avatar-opt" data-avatar="🦄">🦄</button>
+        <button class="avatar-opt" data-avatar="🐬">🐬</button>
+        <button class="avatar-opt" data-avatar="🐙">🐙</button>
+        <button class="avatar-opt" data-avatar="🦋">🦋</button>
+        <button class="avatar-opt" data-avatar="🐸">🐸</button>
+      </div>
+
+      <input class="modal-input" id="profile-name-input" type="text"
+             placeholder="Dein Name" maxlength="20" autocomplete="off"
+             autocorrect="off" autocapitalize="words" spellcheck="false">
+
+      <div class="age-picker">
+        <span class="age-label">Wie alt bist du?</span>
+        <div class="age-btns">
+          <button class="age-btn" data-age="7">7</button>
+          <button class="age-btn selected" data-age="8">8</button>
+          <button class="age-btn" data-age="9">9</button>
+          <button class="age-btn" data-age="10">10</button>
+          <button class="age-btn" data-age="11">11</button>
+          <button class="age-btn" data-age="12">12</button>
+        </div>
+      </div>
+
+      <p class="modal-error hidden" id="profile-error"></p>
+
+      <div class="modal-actions">
+        <button class="secondary-btn" id="btn-cancel-profile">Abbrechen</button>
+        <button class="primary-btn" id="btn-save-profile">Los geht's! 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       UNIVERSAL GAME RESULT OVERLAY
+  ════════════════════════════════════ -->
+  <div class="game-result-overlay hidden" id="game-result-overlay">
+    <div class="game-result-card">
+      <div class="result-emoji" id="gr-emoji">🎉</div>
+      <h2 id="gr-title">Super gemacht!</h2>
+      <div class="result-stats">
+        <div class="result-stat"><strong id="gr-correct">0</strong><span>Richtig</span></div>
+        <div class="result-stat"><strong id="gr-xp">+0</strong><span>XP</span></div>
+        <div class="result-stat"><strong id="gr-streak">0</strong><span>Streak 🔥</span></div>
+      </div>
+      <button class="primary-btn" id="gr-review" style="display:none">🔁 Falsche Wörter üben</button>
+      <button class="primary-btn" id="gr-continue">Nochmal spielen</button>
+      <button class="secondary-btn" id="gr-home">Zur Übersicht</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 2: Home — Kategorie-Grid
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-home">
+    <header class="app-header">
+      <div class="header-profile" id="btn-edit-profile" title="Profil bearbeiten" style="cursor:pointer">
+        <span class="header-avatar" id="header-avatar">🦊</span>
+        <div>
+          <div class="header-name" id="header-name">Name</div>
+          <div class="header-level" id="header-level">Level 1</div>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div class="badge badge-streak" id="header-streak">🔥 0</div>
+        <div class="badge badge-xp" id="header-xp">⭐ 0</div>
+      </div>
+    </header>
+    <div class="xp-bar-outer">
+      <div class="xp-bar-inner" id="home-xp-bar"></div>
+    </div>
+    <!-- Focus Card: zeigt das Wichtigste (Review / Tagesziel / WOTD) -->
+    <div class="focus-card" id="focus-card"></div>
+
+    <!-- Kroatische Laute — compact chip -->
+    <button class="laute-chip" id="btn-laute-banner">
+      <span class="laute-chip-chars">č ć š ž đ</span>
+      <span class="laute-chip-label">Kroatische Laute</span>
+      <span class="laute-chip-arrow">→</span>
+    </button>
+
+    <!-- Hidden data elements (used by JS, not shown directly) -->
+    <div style="display:none">
+      <div id="review-card"><span id="review-count"></span><span id="review-label"></span><button id="btn-review-start"></button></div>
+      <div id="wotd-banner"><span id="wotd-emoji"></span><span id="wotd-hr"></span><span id="wotd-de"></span><button id="wotd-speak"></button><button id="wotd-practice-btn"></button></div>
+      <div id="daily-goal-banner"><span id="daily-goal-label"></span><span id="daily-goal-check"></span><div id="daily-goal-bar-fill"></div></div>
+      <div id="quick-play-bar"><button id="quick-play-btn"></button></div>
+      <div id="grammar-unlock-bar"><div id="grammar-unlock-fill"></div><span id="grammar-unlock-progress"></span></div>
+    </div>
+
+    <main class="categories-grid" id="categories-grid">
+      <!-- Kategorie-Karten per JS -->
+    </main>
+    <nav class="bottom-nav" id="home-nav">
+      <button class="nav-btn active" data-screen="home">
+        <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+      </button>
+      <button class="nav-btn" data-screen="progress">
+        <span class="nav-icon">📊</span><span class="nav-label">Fortschritt</span>
+      </button>
+      <button class="nav-btn" data-screen="settings">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Einstellungen</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 3: Kategorie-Detail
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-category">
+    <header class="screen-header">
+      <button class="back-btn" id="cat-back">←</button>
+      <h2 id="cat-title">Kategorie</h2>
+      <div></div>
+    </header>
+    <div class="cat-hero" id="cat-hero">
+      <div class="cat-emoji" id="cat-emoji">🦁</div>
+      <div class="cat-progress-text">
+        <span id="cat-mastered">0</span> / <span id="cat-total">0</span> beherrscht
+      </div>
+      <div class="cat-mini-bar-outer">
+        <div class="cat-mini-bar-inner" id="cat-mini-bar"></div>
+      </div>
+    </div>
+    <div class="game-buttons" id="game-buttons">
+      <button class="game-btn" data-game="swipe">
+        <span class="game-btn-icon">🃏</span>
+        <div class="game-btn-info">
+          <strong>Swipe-Karten</strong>
+          <span>Links = noch lernen · Rechts = ich kenn's!</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="tap">
+        <span class="game-btn-icon">👆</span>
+        <div class="game-btn-info">
+          <strong>4 Möglichkeiten</strong>
+          <span>Wähle die richtige Übersetzung</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="match">
+        <span class="game-btn-icon">🔗</span>
+        <div class="game-btn-info">
+          <strong>Paare finden</strong>
+          <span>Bild und Wort zusammenbringen</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="rtap">
+        <span class="game-btn-icon">🔄</span>
+        <div class="game-btn-info">
+          <strong>Deutsch → Kroatisch</strong>
+          <span>Sieh das deutsche Wort — wie heißt es auf Kroatisch?</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="satz">
+        <span class="game-btn-icon">📝</span>
+        <div class="game-btn-info">
+          <strong>Sätze bauen</strong>
+          <span>Vervollständige den kroatischen Satz</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="listen">
+        <span class="game-btn-icon">👂</span>
+        <div class="game-btn-info">
+          <strong>Hör-Quiz</strong>
+          <span>Hör das Wort — was bedeutet es?</span>
+        </div>
+      </button>
+      <button class="game-btn" id="btn-speak-game" data-game="speak">
+        <span class="game-btn-icon">🔤</span>
+        <div class="game-btn-info">
+          <strong>Hör &amp; Erkenn!</strong>
+          <span>Hör das Wort — welche Schreibweise ist richtig?</span>
+        </div>
+      </button>
+      <button class="game-btn" data-game="puzzle">
+        <span class="game-btn-icon">🧩</span>
+        <div class="game-btn-info">
+          <strong>Satz-Puzzle</strong>
+          <span>Bring die Wörter in die richtige Reihenfolge</span>
+        </div>
+      </button>
+      <button class="game-btn" id="btn-biti-game" data-game="biti" style="display:none">
+        <span class="game-btn-icon">📘</span>
+        <div class="game-btn-info">
+          <strong>Biti-Quiz</strong>
+          <span>Welche Form von „sein" passt?</span>
+        </div>
+      </button>
+      <button class="game-btn" id="btn-padezi-game" data-game="padezi" style="display:none">
+        <span class="game-btn-icon">🧠</span>
+        <div class="game-btn-info">
+          <strong>Fälle-Quiz</strong>
+          <span>Welche Endung passt? (Akkusativ &amp; Lokativ)</span>
+        </div>
+      </button>
+      <button class="game-btn game-btn-pronounce" data-game="pronounce">
+        <span class="game-btn-icon">🎤</span>
+        <div class="game-btn-info">
+          <strong>Aussprache-Training</strong>
+          <span>Sprich das kroatische Wort nach</span>
+        </div>
+      </button>
+      <button class="game-btn game-btn-sprint" data-game="sprint">
+        <span class="game-btn-icon">⚡</span>
+        <div class="game-btn-info">
+          <strong>60-Sekunden Sprint</strong>
+          <span>So viele Wörter wie möglich in 60 Sek!</span>
+        </div>
+        <span class="sprint-highscore-badge" id="sprint-cat-hs"></span>
+      </button>
+      <button class="game-btn" id="btn-chars-game" data-game="chars" style="display:none" aria-hidden="true">
+        <span class="game-btn-icon">🔣</span>
+        <div class="game-btn-info">
+          <strong>Zeichen-Picker</strong>
+          <span>Sonderzeichen: č š ž ć đ</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 4: Swipe-Spiel
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-swipe">
+    <header class="game-header">
+      <button class="back-btn" id="swipe-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="swipe-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="swipe-counter">0/10</span>
+    </header>
+
+    <div class="swipe-area" id="swipe-area">
+      <div class="card-stack" id="card-stack">
+        <!-- Karten per JS -->
+      </div>
+      <div class="swipe-overlay swipe-overlay-left" id="swipe-ol">Noch lernen ❓</div>
+      <div class="swipe-overlay swipe-overlay-right" id="swipe-or">Ich kenn's ✓</div>
+    </div>
+
+    <!-- First-time swipe tutorial overlay -->
+    <div class="swipe-tutorial" id="swipe-tutorial">
+      <div class="swipe-tut-row">
+        <div class="swipe-tut-arrow">← Noch lernen</div>
+        <div class="swipe-tut-center">Wische die Karte!</div>
+        <div class="swipe-tut-arrow">Ich kenn's! →</div>
+      </div>
+    </div>
+
+    <div class="swipe-hints" id="swipe-hints">
+      <span>← Noch lernen</span>
+      <span>Tippe auf die Karte für Übersetzung</span>
+      <span>Ich kenn's! →</span>
+    </div>
+
+    <!-- Session-Ergebnis (nach allen Karten) -->
+    <div class="session-result hidden" id="session-result">
+      <div class="result-confetti" id="result-confetti"></div>
+      <div class="result-card">
+        <div class="result-emoji" id="result-emoji">🎉</div>
+        <h2 id="result-title">Super gemacht!</h2>
+        <div class="result-stats">
+          <div class="result-stat">
+            <strong id="result-correct">0</strong>
+            <span>Richtig</span>
+          </div>
+          <div class="result-stat">
+            <strong id="result-xp">+0</strong>
+            <span>XP</span>
+          </div>
+          <div class="result-stat">
+            <strong id="result-streak">0</strong>
+            <span>Tage Streak</span>
+          </div>
+        </div>
+        <div class="result-wrong-words hidden" id="result-wrong-words">
+          <div class="result-wrong-title">Nochmal üben:</div>
+          <div class="result-wrong-list" id="result-wrong-list"></div>
+        </div>
+        <button class="primary-btn" id="result-review" style="display:none">🔁 Falsche Wörter üben</button>
+        <button class="primary-btn" id="result-continue">Weiter lernen</button>
+        <button class="secondary-btn" id="result-home">Zurück zur Übersicht</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 5: Tap / 4-Möglichkeiten
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-tap">
+    <header class="game-header">
+      <button class="back-btn" id="tap-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="tap-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="tap-counter">0/8</span>
+    </header>
+
+    <div class="tap-content">
+      <div class="tap-word-display" id="tap-word-display">
+        <div class="tap-emoji" id="tap-emoji">🐕</div>
+        <div class="tap-croatian" id="tap-croatian">Pas</div>
+        <button class="speak-btn speak-btn-standalone" id="tap-speak" title="Aussprache hören" aria-label="Hören">🔊</button>
+        <div class="tap-question" id="tap-question">Was bedeutet das auf Deutsch?</div>
+      </div>
+      <div class="tap-choices" id="tap-choices">
+        <!-- 4 Buttons per JS -->
+      </div>
+      <div class="tap-feedback hidden" id="tap-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 6: Match-Paare
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-match">
+    <header class="game-header">
+      <button class="back-btn" id="match-back">←</button>
+      <span class="game-title">Paare finden</span>
+      <span class="game-counter" id="match-counter">0/6 ✓</span>
+    </header>
+    <div class="match-grid" id="match-grid">
+      <!-- Karten per JS -->
+    </div>
+    <div class="match-result hidden" id="match-result">
+      <div class="result-card compact">
+        <div class="result-emoji">🎊</div>
+        <h3 id="match-result-text">Alle Paare gefunden!</h3>
+        <button class="primary-btn" id="match-again">Nochmal spielen</button>
+        <button class="secondary-btn" id="match-home">Zur Übersicht</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Laute-Guide
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-chars-guide">
+    <header class="screen-header">
+      <button class="back-btn" id="chars-guide-back">←</button>
+      <h2>Kroatische Laute</h2>
+      <div></div>
+    </header>
+    <div class="guide-scroll">
+      <p class="guide-intro">Diese 5 kroatischen Buchstaben klingen anders als im Deutschen — lerne die Regeln und übe mit echten Wörtern:</p>
+      <div class="guide-cards" id="chars-guide-cards"></div>
+      <button class="primary-btn guide-play-btn" id="chars-guide-play">Alle 5 Laute üben 🎮</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Zeichen-Picker
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-chars">
+    <header class="screen-header">
+      <button class="back-btn" id="chars-back">←</button>
+      <h2>Zeichen-Picker</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="icon-btn" id="chars-help-btn" title="Laute anzeigen">❓</button>
+        <span class="progress-text" id="chars-progress">1/8</span>
+      </div>
+    </header>
+    <div class="chars-container">
+      <div class="chars-word-display" id="chars-word-display"></div>
+      <div class="chars-translation" id="chars-translation"></div>
+      <div class="chars-hint">Welches Zeichen fehlt?</div>
+      <div class="chars-options" id="chars-options"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Sätze bauen
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-satz">
+    <header class="game-header">
+      <button class="back-btn" id="satz-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="satz-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="satz-counter">0/8</span>
+    </header>
+    <div class="tap-content">
+      <div class="satz-display" id="satz-word-display">
+        <div class="satz-de" id="satz-de-sentence">Das ist ein Hund.</div>
+        <div class="satz-hr" id="satz-hr-sentence">To je ___.</div>
+      </div>
+      <div class="tap-choices" id="satz-choices"></div>
+      <div class="tap-feedback hidden" id="satz-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Hör-Quiz (Audio Quiz)
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-listen">
+    <header class="game-header">
+      <button class="back-btn" id="listen-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="listen-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="listen-counter">0/8</span>
+    </header>
+
+    <div class="tap-content">
+      <div class="tap-word-display" id="listen-word-display">
+        <div class="tap-emoji" id="listen-emoji">🔊</div>
+        <button class="speak-btn speak-btn-standalone" id="listen-play-btn" title="Nochmal hören" aria-label="Nochmal hören">🔊</button>
+        <div class="tap-question">Was bedeutet dieses Wort auf Deutsch?</div>
+      </div>
+      <div class="tap-choices" id="listen-choices"></div>
+      <div class="tap-feedback hidden" id="listen-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Hör & Erkenn! (Listen + Spell)
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-speak">
+    <header class="game-header">
+      <button class="back-btn" id="speak-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="speak-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="speak-counter">0/8</span>
+    </header>
+    <div class="tap-content">
+      <div class="tap-word-display">
+        <div class="tap-emoji" id="speak-emoji">🐕</div>
+        <div class="hoer-german" id="speak-german">Hund</div>
+        <button class="speak-btn speak-btn-standalone hoer-play-btn" id="hoer-play-btn" aria-label="Nochmal hören">🔊</button>
+        <div class="tap-question">Welche Schreibweise hörst du?</div>
+      </div>
+      <div class="tap-choices" id="speak-choices"></div>
+      <div class="tap-feedback hidden" id="speak-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 7: Fortschritt
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-progress">
+    <header class="app-header">
+      <div class="header-profile">
+        <span class="header-avatar" id="prog-avatar">🦊</span>
+        <div>
+          <div class="header-name" id="prog-name">Name</div>
+          <div class="header-level" id="prog-level">Level 1</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="progress-scroll">
+      <div class="progress-big-stat">
+        <div class="big-stat-circle" id="prog-circle">
+          <span id="prog-total-words">0</span>
+          <small>Wörter</small>
+        </div>
+        <div class="big-stat-info">
+          <div class="stat-row">
+            <span>Tages-Streak</span>
+            <strong id="prog-streak">0 🔥</strong>
+          </div>
+          <div class="stat-row">
+            <span>Beste Serie</span>
+            <strong id="prog-best-streak">0 🏆</strong>
+          </div>
+          <div class="stat-row">
+            <span>Gesamt-XP</span>
+            <strong id="prog-xp">0 ⭐</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next unlock goal -->
+      <div class="next-goal-banner" id="next-goal-banner" style="display:none">
+        <span class="next-goal-icon">🔒</span>
+        <div class="next-goal-text">
+          <strong id="next-goal-title">Neue Kategorien bald!</strong>
+          <span id="next-goal-desc">Noch X Wörter meistern</span>
+        </div>
+        <div class="next-goal-bar-outer">
+          <div class="next-goal-bar-fill" id="next-goal-bar-fill"></div>
+        </div>
+      </div>
+
+      <h3 class="section-title">Kategorien</h3>
+      <div class="category-progress-list" id="cat-progress-list">
+        <!-- Per JS -->
+      </div>
+
+      <h3 class="section-title">Zuletzt gelernt</h3>
+      <div class="recent-words" id="recent-words">
+        <!-- Per JS -->
+      </div>
+
+      <h3 class="section-title">Meine Abzeichen</h3>
+      <div class="badge-grid" id="badge-grid">
+        <!-- Per JS -->
+      </div>
+
+      <h3 class="section-title" style="margin-top:8px">
+        Alle Wörter
+        <button class="vocab-toggle-btn" id="vocab-toggle-btn">Anzeigen ▾</button>
+      </h3>
+      <div class="vocab-browser hidden" id="vocab-browser">
+        <!-- Per JS -->
+      </div>
+    </div>
+
+    <nav class="bottom-nav" id="progress-nav">
+      <button class="nav-btn" data-screen="home">
+        <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+      </button>
+      <button class="nav-btn active" data-screen="progress">
+        <span class="nav-icon">📊</span><span class="nav-label">Fortschritt</span>
+      </button>
+      <button class="nav-btn" data-screen="settings">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Einstellungen</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 8: Einstellungen
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-settings">
+    <header class="screen-header">
+      <button class="back-btn" id="settings-back">←</button>
+      <h2>Einstellungen</h2>
+      <div></div>
+    </header>
+    <div class="settings-list">
+      <div class="settings-item">
+        <span>Name</span>
+        <strong id="settings-name">—</strong>
+      </div>
+      <div class="settings-item">
+        <span>Alter</span>
+        <strong id="settings-age">—</strong>
+      </div>
+      <div class="settings-item">
+        <span>Schwierigkeit</span>
+        <select id="settings-difficulty" class="settings-select">
+          <option value="auto">Automatisch</option>
+          <option value="easy">Leicht</option>
+          <option value="hard">Schwer</option>
+        </select>
+      </div>
+      <div class="settings-item">
+        <span>Zeige Deutsch-Hinweis</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-hint-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item settings-section-title">
+        <span>🎨 Darstellung</span>
+      </div>
+      <div class="settings-item">
+        <span>🌙 Dunkler Modus</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-dark-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item settings-section-title">
+        <span>🔔 Töne &amp; Stimme</span>
+      </div>
+      <div class="settings-item">
+        <span>🎵 Spielgeräusche</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-sound-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item settings-section-title">
+        <span>🔊 Aussprache</span>
+      </div>
+      <div class="settings-item">
+        <span>Aussprache ein</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-audio-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item" id="settings-audio-sub">
+        <span>Automatisch abspielen</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-autoplay-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item" id="settings-slow-row">
+        <span>🐢 Langsam sprechen</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-slow-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="settings-item" id="settings-both-row">
+        <span>Auch Deutsch hören</span>
+        <label class="toggle">
+          <input type="checkbox" id="settings-both-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+    <button class="danger-btn" id="btn-switch-profile">Profil wechseln</button>
+
+    <nav class="bottom-nav" id="settings-nav">
+      <button class="nav-btn" data-screen="home">
+        <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+      </button>
+      <button class="nav-btn" data-screen="progress">
+        <span class="nav-icon">📊</span><span class="nav-label">Fortschritt</span>
+      </button>
+      <button class="nav-btn active" data-screen="settings">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Einstellungen</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 9: Eltern-PIN-Gate
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-parent-gate">
+    <header class="screen-header">
+      <button class="back-btn" id="pin-back">←</button>
+      <h2>Eltern-Bereich</h2>
+      <div></div>
+    </header>
+    <div class="pin-gate">
+      <div class="pin-lock-icon">🔐</div>
+      <p class="pin-subtitle" id="pin-subtitle">PIN eingeben</p>
+      <div class="pin-dots" id="pin-dots">
+        <span class="pin-dot" id="dot-0"></span>
+        <span class="pin-dot" id="dot-1"></span>
+        <span class="pin-dot" id="dot-2"></span>
+        <span class="pin-dot" id="dot-3"></span>
+      </div>
+      <p class="pin-error hidden" id="pin-error">Falscher PIN — bitte nochmal</p>
+      <div class="numpad" id="numpad">
+        <button class="num-btn" data-num="1">1</button>
+        <button class="num-btn" data-num="2">2</button>
+        <button class="num-btn" data-num="3">3</button>
+        <button class="num-btn" data-num="4">4</button>
+        <button class="num-btn" data-num="5">5</button>
+        <button class="num-btn" data-num="6">6</button>
+        <button class="num-btn" data-num="7">7</button>
+        <button class="num-btn" data-num="8">8</button>
+        <button class="num-btn" data-num="9">9</button>
+        <button class="num-btn num-clear" id="pin-clear">✕</button>
+        <button class="num-btn" data-num="0">0</button>
+        <button class="num-btn num-del" id="pin-del">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN 10: Eltern-Dashboard
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-parent">
+    <header class="screen-header">
+      <button class="back-btn" id="parent-back">←</button>
+      <h2>Eltern-Bereich</h2>
+      <button class="icon-text-btn" id="btn-parent-settings">⚙️</button>
+    </header>
+    <div class="parent-scroll">
+      <h3 class="section-title">Fortschritt der Kinder</h3>
+      <div class="parent-children" id="parent-children">
+        <!-- Per JS -->
+      </div>
+      <h3 class="section-title">PIN ändern</h3>
+      <div class="parent-pin-section">
+        <input type="password" inputmode="numeric" maxlength="4"
+               id="new-pin-input" placeholder="Neuer PIN (4 Ziffern)" class="text-input">
+        <button class="primary-btn" id="btn-save-pin">PIN speichern</button>
+        <p class="feedback-text" id="pin-save-feedback"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCREEN: Onboarding
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screen-onboarding">
+    <div class="onboarding-slides" id="onboarding-slides">
+
+      <!-- Slide 1: Swipe -->
+      <div class="onboarding-slide active" data-slide="0">
+        <div class="onboarding-demo swipe-demo">
+          <div class="demo-card">🐕<br>Pas</div>
+          <div class="demo-arrows">
+            <span class="demo-arrow-left">✗</span>
+            <span class="demo-arrow-right">✓</span>
+          </div>
+        </div>
+        <h2>Wörter lernen</h2>
+        <p>Wische <strong>rechts</strong> wenn du das Wort kennst.<br>Wische <strong>links</strong> wenn nicht.</p>
+      </div>
+
+      <!-- Slide 2: Tap -->
+      <div class="onboarding-slide" data-slide="1">
+        <div class="onboarding-demo tap-demo">
+          <div class="demo-emoji">🐱</div>
+          <div class="demo-choices">
+            <div class="demo-choice wrong">Pas</div>
+            <div class="demo-choice correct">Mačka</div>
+            <div class="demo-choice">Riba</div>
+            <div class="demo-choice">Slon</div>
+          </div>
+        </div>
+        <h2>Quiz spielen</h2>
+        <p>Tippe auf die <strong>richtige Übersetzung</strong>.</p>
+      </div>
+
+      <!-- Slide 3: Match -->
+      <div class="onboarding-slide" data-slide="2">
+        <div class="onboarding-demo match-demo">
+          <div class="demo-match-grid">
+            <div class="demo-match-card selected">🐕</div>
+            <div class="demo-match-card">Mačka</div>
+            <div class="demo-match-card matched">🐱</div>
+            <div class="demo-match-card matched">Pas</div>
+          </div>
+        </div>
+        <h2>Paare finden</h2>
+        <p>Finde zusammengehörende <strong>Paare</strong> aus Emoji und Wort.</p>
+      </div>
+
+      <!-- Slide 4: Hör-Quiz -->
+      <div class="onboarding-slide" data-slide="3">
+        <div class="onboarding-demo listen-demo">
+          <div class="demo-listen-icon">🔊</div>
+          <div class="demo-choices">
+            <div class="demo-choice correct">Mačka</div>
+            <div class="demo-choice">Pas</div>
+          </div>
+        </div>
+        <h2>Hören &amp; Erkennen</h2>
+        <p>Höre das kroatische Wort und tippe auf die <strong>richtige Antwort</strong>.</p>
+      </div>
+
+      <!-- Slide 5: Sprich nach -->
+      <div class="onboarding-slide" data-slide="4">
+        <div class="onboarding-demo speak-demo-ob">
+          <div class="demo-listen-icon">🎤</div>
+          <div class="demo-speak-word">Pas</div>
+        </div>
+        <h2>Sprechen üben</h2>
+        <p>Sieh das Wort und <strong>sprich es nach</strong> — das Mikrofon hört zu!</p>
+      </div>
+
+      <!-- Slide 6: SRS / Streak -->
+      <div class="onboarding-slide" data-slide="5">
+        <div class="onboarding-demo streak-demo">
+          <div class="demo-streak-row">
+            <span class="demo-fire">🔥</span>
+            <span class="demo-streak-num">7</span>
+          </div>
+          <div class="demo-streak-label">Tage am Stück!</div>
+        </div>
+        <h2>Täglich lernen</h2>
+        <p>Lerne <strong>jeden Tag</strong> ein paar Wörter — dein Flammen-Streak wächst!</p>
+      </div>
+
+    </div>
+
+    <!-- Dots -->
+    <div class="onboarding-dots">
+      <span class="onboarding-dot active" data-dot="0"></span>
+      <span class="onboarding-dot" data-dot="1"></span>
+      <span class="onboarding-dot" data-dot="2"></span>
+      <span class="onboarding-dot" data-dot="3"></span>
+      <span class="onboarding-dot" data-dot="4"></span>
+      <span class="onboarding-dot" data-dot="5"></span>
+    </div>
+
+    <div class="onboarding-footer">
+      <button class="secondary-btn" id="onboarding-skip">Überspringen</button>
+      <button class="primary-btn" id="onboarding-next">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       OVERLAY: Level-Up
+  ════════════════════════════════════════ -->
+  <div class="levelup-overlay hidden" id="levelup-overlay" aria-live="assertive">
+    <div class="levelup-card">
+      <div class="levelup-star">⭐</div>
+      <div class="levelup-title" id="levelup-title">Level 2 erreicht!</div>
+      <div class="levelup-name" id="levelup-name">Lernfuchs</div>
+      <button class="primary-btn levelup-btn" id="levelup-continue">Weiter</button>
+    </div>
+  </div>
+
+  <!-- Category Complete Overlay -->
+  <div class="levelup-overlay hidden" id="cat-complete-overlay">
+    <div class="levelup-card">
+      <div class="levelup-star" id="cat-complete-emoji">🏆</div>
+      <div class="levelup-title">Kategorie gemeistert!</div>
+      <div class="levelup-name" id="cat-complete-name">Tiere</div>
+      <div style="font-size:.9rem;color:var(--text-mid);margin:8px 0 20px">Alle Wörter beherrscht! 🎉</div>
+      <button class="primary-btn levelup-btn" id="cat-complete-continue">Super!</button>
+    </div>
+  </div>
+
+  <!-- Toast: Badge awarded -->
+  <div class="badge-toast hidden" id="badge-toast" aria-live="polite">
+    <span class="badge-toast-emoji" id="badge-toast-emoji">🏆</span>
+    <div class="badge-toast-text">
+      <strong>Neues Abzeichen!</strong>
+      <span id="badge-toast-name">Wortschatz-Held</span>
+    </div>
+  </div>
+
+  <!-- Global confetti container -->
+  <div id="global-confetti" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Biti-Quiz (Konjugation)
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-biti">
+    <header class="game-header">
+      <button class="back-btn" id="biti-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="biti-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="biti-counter">1/6</span>
+    </header>
+    <div class="biti-content">
+      <div class="biti-question">
+        <div class="biti-label" id="biti-label">Welche Form von <em>biti</em> (sein) passt?</div>
+        <div class="biti-pronoun-wrap">
+          <span class="biti-pronoun-hr" id="biti-pronoun-hr">Ja</span>
+          <span class="biti-pronoun-de" id="biti-pronoun-de">= Ich</span>
+        </div>
+        <div class="biti-blank-row">
+          <span class="biti-pronoun-hr biti-pronoun-sm" id="biti-pronoun-hr-sm">Ja</span>
+          <span class="biti-blank">___</span>
+          <span class="biti-dots">…</span>
+        </div>
+      </div>
+      <div class="biti-choices" id="biti-choices"></div>
+      <div class="biti-feedback hidden" id="biti-feedback">
+        <div class="biti-feedback-text" id="biti-feedback-text"></div>
+        <div class="biti-full-form" id="biti-full-form"></div>
+        <button class="primary-btn biti-next-btn" id="biti-next">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Satz-Puzzle
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-puzzle">
+    <header class="game-header">
+      <button class="back-btn" id="puzzle-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="puzzle-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="puzzle-counter">1/8</span>
+    </header>
+    <div class="puzzle-content">
+      <div class="puzzle-de-sentence" id="puzzle-de-sentence">Das ist ein Hund.</div>
+      <div class="puzzle-answer-area" id="puzzle-answer-area"></div>
+      <div class="puzzle-divider"></div>
+      <div class="puzzle-tiles" id="puzzle-tiles"></div>
+      <div class="puzzle-feedback hidden" id="puzzle-feedback">
+        <div class="puzzle-feedback-icon" id="puzzle-feedback-icon">✓</div>
+        <div class="puzzle-feedback-text" id="puzzle-feedback-text"></div>
+        <button class="primary-btn" id="puzzle-next">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Sprint-Modus (60 Sekunden)
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-sprint">
+    <header class="game-header">
+      <button class="back-btn" id="sprint-back">←</button>
+      <div class="sprint-timer-wrap">
+        <div class="sprint-timer-bar-outer">
+          <div class="sprint-timer-bar-fill" id="sprint-timer-fill"></div>
+        </div>
+        <span class="sprint-timer-label" id="sprint-timer-label">60</span>
+      </div>
+      <span class="game-counter sprint-score-badge" id="sprint-score">0</span>
+    </header>
+    <div class="sprint-content">
+      <div class="sprint-word-emoji" id="sprint-emoji">🦁</div>
+      <div class="sprint-word-hr" id="sprint-word-hr">Lav</div>
+      <div class="sprint-word-hint" id="sprint-word-hint">Was bedeutet das?</div>
+      <div class="sprint-choices" id="sprint-choices"></div>
+      <div class="tap-feedback hidden" id="sprint-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       OVERLAY: Sprint-Ergebnis
+  ════════════════════════════════════ -->
+  <div class="game-result-overlay hidden" id="sprint-result-overlay">
+    <div class="game-result-card">
+      <div class="result-emoji" id="sr-emoji">🏁</div>
+      <h2 id="sr-title">Sprint beendet!</h2>
+      <div class="result-stats">
+        <div class="result-stat"><strong id="sr-score">0</strong><span>Richtig</span></div>
+        <div class="result-stat"><strong id="sr-best">0</strong><span>Rekord 🏆</span></div>
+        <div class="result-stat"><strong id="sr-xp">+0</strong><span>XP</span></div>
+      </div>
+      <p class="sprint-result-sub" id="sr-new-record" style="display:none">🎉 Neuer Rekord!</p>
+      <button class="primary-btn" id="sr-again">Nochmal!</button>
+      <button class="secondary-btn" id="sr-home">Zur Übersicht</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Aussprache-Training
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-pronounce">
+    <header class="game-header">
+      <button class="back-btn" id="pronounce-back">←</button>
+      <div class="game-progress-track">
+        <div class="game-progress-fill" id="pronounce-progress-fill"></div>
+      </div>
+      <span class="game-counter" id="pronounce-counter">0/10</span>
+    </header>
+    <div class="pronounce-content">
+      <div class="pronounce-emoji" id="pronounce-emoji">🦁</div>
+      <div class="pronounce-word-de" id="pronounce-word-de">Löwe</div>
+      <div class="pronounce-phonetic" id="pronounce-phonetic">Sprich auf Kroatisch:</div>
+      <div class="pronounce-word-hr" id="pronounce-word-hr">Lav</div>
+      <button class="pronounce-listen-btn" id="pronounce-listen-btn" title="Anhören">🔊 Anhören</button>
+      <button class="pronounce-mic-btn" id="pronounce-mic-btn">
+        <span class="pronounce-mic-icon">🎤</span>
+        <span class="pronounce-mic-label">Tippen &amp; sprechen</span>
+      </button>
+      <div class="pronounce-result hidden" id="pronounce-result">
+        <div class="pronounce-result-icon" id="pronounce-result-icon">✓</div>
+        <div class="pronounce-result-text" id="pronounce-result-text"></div>
+        <div class="pronounce-result-heard" id="pronounce-result-heard"></div>
+        <button class="primary-btn" id="pronounce-next-btn">Weiter →</button>
+      </div>
+      <div class="pronounce-no-speech hidden" id="pronounce-no-speech">
+        <p>Spracherkennung nicht verfügbar auf diesem Gerät.</p>
+        <button class="secondary-btn" id="pronounce-skip">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="state.js"></script>
+  <script src="local-api.js"></script>
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="engine.js"></script>
+  <script src="ui.js"></script>
+  <script src="feedback.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Register Service Worker for PWA / offline support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
