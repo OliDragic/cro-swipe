@@ -222,13 +222,6 @@
       <span class="city-banner-arrow">→</span>
     </button>
 
-    <!-- Kroatische Laute — compact chip -->
-    <button class="laute-chip" id="btn-laute-banner">
-      <span class="laute-chip-chars">č ć š ž đ</span>
-      <span class="laute-chip-label">Kroatische Laute</span>
-      <span class="laute-chip-arrow">→</span>
-    </button>
-
     <!-- Hidden data elements (used by JS, not shown directly) -->
     <div style="display:none">
       <div id="review-card"><span id="review-count"></span><span id="review-label"></span><button id="btn-review-start"></button></div>
@@ -238,9 +231,17 @@
       <div id="grammar-unlock-bar"><div id="grammar-unlock-fill"></div><span id="grammar-unlock-progress"></span></div>
     </div>
 
+    <h3 class="home-section-title">🌍 Lernwelten</h3>
     <main class="categories-grid" id="categories-grid">
       <!-- Kategorie-Karten per JS -->
     </main>
+
+    <!-- Kroatische Laute — compact chip (sekundär, unter den Lernwelten) -->
+    <button class="laute-chip" id="btn-laute-banner">
+      <span class="laute-chip-chars">č ć š ž đ</span>
+      <span class="laute-chip-label">Kroatische Laute</span>
+      <span class="laute-chip-arrow">→</span>
+    </button>
     <nav class="bottom-nav" id="home-nav">
       <button class="nav-btn active" data-screen="home">
         <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
@@ -380,22 +381,18 @@
         <span class="city-stat">👥 <b id="city-population">0</b></span>
       </div>
     </header>
-    <div class="city-scene">
-      <div class="city-sky">
-        <span class="city-sun">☀️</span>
-        <span class="city-gull">🕊️</span>
-      </div>
-      <div class="city-sea">🌊 🌊 🌊</div>
-      <div class="city-grid" id="city-grid"></div>
-      <p class="city-hint">Tippe auf ＋ zum Bauen · Tippe auf Gebäude, um sie auf Kroatisch zu hören</p>
-    </div>
+    <div class="city-scene-holder" id="city-scene-holder"></div>
+    <p class="city-hint">Tippe auf ＋ zum Bauen · Tippe auf Gebäude, um sie auf Kroatisch zu hören</p>
     <div class="city-toast" id="city-toast"></div>
 
-    <!-- Bau-Menü -->
+    <!-- Bau-Dialog (fester Platz) -->
     <div class="modal-overlay hidden" id="city-build-sheet">
-      <div class="modal-card city-build-card">
-        <h2 class="modal-title">Was möchtest du bauen?</h2>
-        <div class="city-build-list" id="city-build-list"></div>
+      <div class="modal-card city-info-card">
+        <div class="ci-emoji" id="cb-emoji">🏠</div>
+        <h2 class="ci-hr" id="cb-hr">kuća</h2>
+        <p class="ci-de" id="cb-de">Haus</p>
+        <p class="cb-status" id="cb-status"></p>
+        <button class="primary-btn" id="cb-build">🔨 Bauen</button>
         <button class="secondary-btn" id="city-build-close">Schließen</button>
       </div>
     </div>
