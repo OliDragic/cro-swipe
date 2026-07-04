@@ -1,0 +1,94 @@
+# Generiert alle Wort-Audios neu mit neuronalen Stimmen (edge-tts):
+#   Kroatisch: hr-HR-GabrijelaNeural · Deutsch: de-DE-KatjaNeural
+# Läuft beim ersten Push dieser Datei einmal automatisch, danach manuell
+# über Actions → "Regenerate word audio" → Run workflow.
+name: Regenerate word audio
+
+on:
+  push:
+    paths:
+      - '.github/workflows/regenerate-audio.yml'
+      - 'content/words.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: regenerate-audio
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install edge-tts
+        run: pip install edge-tts
+
+      - name: Generate audio files
+        run: |
+          cat > /tmp/gen_audio.py <<'PYEOF'
+          import asyncio, csv, sys
+          import edge_tts
+
+          VOICES = {"hr": "hr-HR-GabrijelaNeural", "de": "de-DE-KatjaNeural"}
+          RATE = "-10%"   # etwas langsamer — besser zum Nachsprechen für Kinder
+
+          async def gen(sem, word_id, text, lang):
+              async with sem:
+                  out = f"audio/{lang}/{word_id}.mp3"
+                  for attempt in range(3):
+                      try:
+                          c = edge_tts.Communicate(text, VOICES[lang], rate=RATE)
+                          await c.save(out)
+                          return True
+                      except Exception as e:
+                          if attempt == 2:
+                              print(f"FEHLER {out}: {e}", file=sys.stderr)
+                              return False
+                          await asyncio.sleep(2 * (attempt + 1))
+
+          async def main():
+              rows = list(csv.DictReader(open("content/words.csv", encoding="utf-8")))
+              sem = asyncio.Semaphore(6)
+              tasks = []
+              for r in rows:
+                  wid = r["id"].strip()
+                  hr = r["word_hr"].strip()
+                  de = r["word_de"].strip()
+                  if wid and hr: tasks.append(gen(sem, wid, hr, "hr"))
+                  if wid and de: tasks.append(gen(sem, wid, de, "de"))
+              results = await asyncio.gather(*tasks)
+              ok, bad = sum(results), len(results) - sum(results)
+              print(f"Fertig: {ok} ok, {bad} fehlgeschlagen von {len(results)}")
+              if bad > 20:
+                  sys.exit(1)   # zu viele Ausfälle → alten Stand behalten
+
+          asyncio.run(main())
+          PYEOF
+          python /tmp/gen_audio.py
+
+      - name: Commit regenerated audio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audio/
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen"
+          else
+            git commit -m "Regenerate word audio with neural voices (edge-tts)"
+            git push
+          fi
+
+      # Pushes mit GITHUB_TOKEN lösen keine Workflows aus → Deploy explizit anstoßen
+      - name: Trigger Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --ref main -R ${{ github.repository }}
