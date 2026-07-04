@@ -333,6 +333,7 @@ function wireEvents() {
     document.getElementById('new-pin-input').value = '';
   });
 
+  wireCityEvents();
   wireFeedbackEvents();
 }
 

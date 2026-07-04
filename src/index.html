@@ -212,6 +212,16 @@
     <!-- Focus Card: zeigt das Wichtigste (Review / Tagesziel / WOTD) -->
     <div class="focus-card" id="focus-card"></div>
 
+    <!-- Moj Grad — Belohnungs-Stadt -->
+    <button class="city-banner" id="btn-city-banner">
+      <span class="city-banner-emoji">🏝️</span>
+      <span class="city-banner-info">
+        <strong>Moj Grad</strong>
+        <span>Baue dein kroatisches Küstendorf!</span>
+      </span>
+      <span class="city-banner-arrow">→</span>
+    </button>
+
     <!-- Kroatische Laute — compact chip -->
     <button class="laute-chip" id="btn-laute-banner">
       <span class="laute-chip-chars">č ć š ž đ</span>
@@ -355,6 +365,51 @@
           <span>Sonderzeichen: č š ž ć đ</span>
         </div>
       </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCREEN: Moj Grad — Küstendorf
+  ════════════════════════════════════ -->
+  <div class="screen" id="screen-city">
+    <header class="screen-header city-header">
+      <button class="back-btn" id="city-back">←</button>
+      <h2>🏝️ Moj Grad</h2>
+      <div class="city-stats">
+        <span class="city-stat">🪙 <b id="city-coins">0</b></span>
+        <span class="city-stat">👥 <b id="city-population">0</b></span>
+      </div>
+    </header>
+    <div class="city-scene">
+      <div class="city-sky">
+        <span class="city-sun">☀️</span>
+        <span class="city-gull">🕊️</span>
+      </div>
+      <div class="city-sea">🌊 🌊 🌊</div>
+      <div class="city-grid" id="city-grid"></div>
+      <p class="city-hint">Tippe auf ＋ zum Bauen · Tippe auf Gebäude, um sie auf Kroatisch zu hören</p>
+    </div>
+    <div class="city-toast" id="city-toast"></div>
+
+    <!-- Bau-Menü -->
+    <div class="modal-overlay hidden" id="city-build-sheet">
+      <div class="modal-card city-build-card">
+        <h2 class="modal-title">Was möchtest du bauen?</h2>
+        <div class="city-build-list" id="city-build-list"></div>
+        <button class="secondary-btn" id="city-build-close">Schließen</button>
+      </div>
+    </div>
+
+    <!-- Gebäude-Info -->
+    <div class="modal-overlay hidden" id="city-info-sheet">
+      <div class="modal-card city-info-card">
+        <div class="ci-emoji" id="ci-emoji">🏠</div>
+        <h2 class="ci-hr" id="ci-hr">kuća</h2>
+        <p class="ci-de" id="ci-de">Haus</p>
+        <button class="primary-btn" id="ci-speak">🔊 Nochmal hören</button>
+        <button class="danger-btn" id="ci-demolish">🗑️ Abreißen (50 % zurück)</button>
+        <button class="secondary-btn" id="city-info-close">Schließen</button>
+      </div>
     </div>
   </div>
 
@@ -1095,6 +1150,7 @@
   <script src="data.js"></script>
   <script src="audio.js"></script>
   <script src="engine.js"></script>
+  <script src="city.js"></script>
   <script src="ui.js"></script>
   <script src="feedback.js"></script>
   <script src="app.js"></script>

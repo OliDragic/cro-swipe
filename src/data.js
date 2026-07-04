@@ -540,6 +540,7 @@ async function saveProfile() {
         badges: state.profile.badges || [],
         daily_goal: state.profile.daily_goal || { date: null, count: 0 },
         settings: state.profile.settings,
+        city: state.profile.city || { buildings: [], spent: 0 },
       }),
     });
     state.profile = data.profile;

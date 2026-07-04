@@ -53,6 +53,7 @@ const LocalAPI = {
       daily_goal:    p.daily_goal || { date: null, count: 0 },
       settings:      { ...this.DEFAULT_SETTINGS, ...(p.settings || {}) },
       pin:           p.pin || null,
+      city:          p.city || { buildings: [], spent: 0 },
     };
   },
 
@@ -146,6 +147,13 @@ const LocalAPI = {
 
     if ('pin' in payload && /^\d{4}$/.test(String(payload.pin || ''))) {
       profile.pin = String(payload.pin);
+    }
+
+    if ('city' in payload && payload.city && typeof payload.city === 'object') {
+      profile.city = {
+        buildings: Array.isArray(payload.city.buildings) ? payload.city.buildings : [],
+        spent: Math.max(0, parseInt(payload.city.spent ?? 0, 10) || 0),
+      };
     }
 
     if (payload.word_progress) {
