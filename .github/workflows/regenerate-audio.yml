@@ -128,8 +128,12 @@ jobs:
             git push
           fi
 
-      # Pushes mit GITHUB_TOKEN lösen keine Workflows aus → Deploy explizit anstoßen
+      # Pushes mit GITHUB_TOKEN lösen keine Workflows aus → Deploy explizit anstoßen.
+      # Kurz warten, damit der Dispatch den frisch gepushten Commit auflöst
+      # (sonst deployt er den Stand vor dem Audio-Commit).
       - name: Trigger Pages deployment
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-pages.yml --ref main -R ${{ github.repository }}
+        run: |
+          sleep 20
+          gh workflow run deploy-pages.yml --ref main -R ${{ github.repository }}
