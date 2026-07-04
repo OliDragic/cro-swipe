@@ -117,6 +117,9 @@ function wireEvents() {
   });
 
   // ── Swipe result buttons ──
+  document.getElementById('result-next').addEventListener('click', () => {
+    startNextGame();
+  });
   document.getElementById('result-continue').addEventListener('click', () => {
     startSwipeGame(state.currentCategory?.id);
   });

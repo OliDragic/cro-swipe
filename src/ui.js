@@ -99,6 +99,10 @@ function showGameResult({ correct, total, xpGained, onContinue, wrongWords = [] 
     }
   }
 
+  document.getElementById('gr-next').onclick = () => {
+    overlay.classList.add('hidden');
+    startNextGame();
+  };
   document.getElementById('gr-continue').onclick = () => {
     overlay.classList.add('hidden');
     if (onContinue) onContinue();
@@ -109,6 +113,22 @@ function showGameResult({ correct, total, xpGained, onContinue, wrongWords = [] 
     renderHome();
     navigate('home');
   };
+}
+
+/* ─── "Nächste Übung": rotiert durch die Kern-Spielmodi derselben Kategorie,
+   damit Kinder ohne Umweg über Home/Kategorie weiterüben können ─── */
+const NEXT_GAME_CYCLE = ['swipe', 'tap', 'listen', 'match', 'puzzle'];
+
+function startNextGame() {
+  const catId = state.currentCategory?.id;
+  const cur = NEXT_GAME_CYCLE.indexOf(state.lastGameMode);
+  const next = NEXT_GAME_CYCLE[(cur + 1) % NEXT_GAME_CYCLE.length];
+  AudioManager.unlock();
+  if (next === 'swipe') startSwipeGame(catId);
+  else if (next === 'tap') startTapGame(catId);
+  else if (next === 'listen') startListenGame(catId);
+  else if (next === 'match') startMatchGame(catId);
+  else startPuzzleGame(catId);
 }
 
 /* ─── Screen router ─── */

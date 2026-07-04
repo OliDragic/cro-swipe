@@ -552,6 +552,7 @@ async function saveProfile() {
 }
 
 function _trackGamePlayed(mode) {
+  state.lastGameMode = mode;   // für "Nächste Übung" auf dem Ergebnis-Screen
   try {
     const g = JSON.parse(localStorage.getItem('cs_games_played') || '{}');
     g[mode] = (g[mode] || 0) + 1;
