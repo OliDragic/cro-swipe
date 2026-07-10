@@ -3208,7 +3208,7 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .city-scene-holder {
   overflow: hidden; margin: 0;
   /* Letterbox-Bänder (oben Himmel, unten Meer) laufen nahtlos weiter */
-  background: linear-gradient(180deg, #8ecdf0 0%, #8ecdf0 50%, #2a6f9e 50%, #2a6f9e 100%);
+  background: linear-gradient(180deg, #8ecdf0 0%, #8ecdf0 50%, #25628d 50%, #25628d 100%);
 }
 #city-svg { display: block; width: 100%; height: auto; }
 
@@ -3228,6 +3228,10 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 }
 .waves { animation: wave-move 7s linear infinite; }
 .waves-slow { animation: wave-move 11s linear infinite reverse; }
+.river-flow { animation: river-flow 2.8s linear infinite; }
+@keyframes river-flow { to { stroke-dashoffset: -44; } }
+.sea-glints { animation: glint-shimmer 5s ease-in-out infinite; }
+@keyframes glint-shimmer { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
 @keyframes wave-move { from { transform: translateX(0); } to { transform: translateX(-30px); } }
 .city-spot.bob { animation: boat-bob 4.5s ease-in-out infinite; transform-origin: center bottom; }
 @keyframes boat-bob {
@@ -3235,23 +3239,31 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
   50%      { translate: 0 5px; rotate: 2.5deg; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cloud-a, .cloud-b, .gull-a, .gull-b, .waves, .waves-slow, .city-spot.bob { animation: none; }
+  .cloud-a, .cloud-b, .gull-a, .gull-b, .waves, .waves-slow, .city-spot.bob,
+  .river-flow, .sea-glints { animation: none; }
 }
 
 /* Bauplätze */
 .city-spot { cursor: pointer; }
 .city-spot.built { animation: build-pop .45s cubic-bezier(.2,1.6,.4,1); }
 @keyframes build-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
-.ghost-ring {
-  fill: rgba(255,255,255,.28); stroke: rgba(255,255,255,.95);
-  stroke-width: 2; stroke-dasharray: 5 5;
-  animation: ghost-pulse 2.6s ease-in-out infinite;
-}
-@keyframes ghost-pulse { 0%,100% { r: 24; } 50% { r: 27; } }
-.city-spot.ghost.locked .ghost-ring { stroke: rgba(90,90,90,.55); fill: rgba(120,120,120,.18); animation: none; }
-.ghost-icon { font-size: 20px; fill: #fff; font-weight: 800; }
-.ghost-cost { font-size: 11px; font-weight: 800; fill: #1a3a52; paint-order: stroke; stroke: rgba(255,255,255,.85); stroke-width: 3px; }
-.city-spot.ghost:hover .ghost-ring, .city-spot.ghost:active .ghost-ring { fill: rgba(255,255,255,.45); }
+/* Fundamente: geräumte Erde mit geätztem Umriss (statt schwebender Kreise) */
+.plot-dirt { fill: url(#cg-dirt); }
+.plot-dirt-edge { fill: none; stroke: rgba(94,64,34,.5); stroke-width: 2; }
+.plot-rake { stroke: rgba(122,90,56,.45); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+.city-spot.ghost:hover .plot-dirt, .city-spot.ghost:active .plot-dirt { filter: brightness(1.12); }
+.city-spot.ghost.locked .plot-dirt { fill: #a9a08c; opacity: .75; }
+.city-spot.ghost.locked .plot-rake { opacity: .4; }
+/* Preisschild aus Holz */
+.plot-sign-board { fill: #a4713f; stroke: #6b4a2e; stroke-width: 1.5; }
+.plot-sign-text { font-size: 11px; font-weight: 800; fill: #fff7e8; }
+.plot-sign.affordable .plot-sign-board { stroke: #f2c94c; }
+.plot-sign.affordable { animation: sign-ready 2.4s ease-in-out infinite; transform-origin: 21px 0; }
+@keyframes sign-ready { 0%,100% { scale: 1; } 50% { scale: 1.07; } }
+.plot-sign.expensive { opacity: .85; }
+/* Boje für den Boots-Liegeplatz */
+.plot-water-ring { fill: rgba(255,255,255,.12); stroke: rgba(255,255,255,.55); stroke-width: 1.5; }
+@media (prefers-reduced-motion: reduce) { .plot-sign.affordable { animation: none; } }
 
 .cb-status { font-size: .9rem; opacity: .85; margin: 2px 0 6px; }
 

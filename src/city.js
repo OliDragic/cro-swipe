@@ -315,6 +315,46 @@ function _cityLockReason(def) {
 }
 
 /* ─── Szene ─── */
+/* Deko-Helfer: kleine wiederverwendbare Zeichnungen für die Landschaft */
+function _decoPine(x, y, s, dark) {
+  const c = dark ? '#3f6d3f' : '#4d7148';
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M0 0 L-7 0 L0 -13 L7 0 Z" fill="${c}"/>
+    <path d="M0 -6 L-5.5 -6 L0 -17 L5.5 -6 Z" fill="${c}"/>
+    <rect x="-1.2" y="0" width="2.4" height="3.5" fill="#6b4a2e"/>
+  </g>`;
+}
+function _decoOak(x, y, s) {
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <rect x="-1.8" y="-6" width="3.6" height="7" fill="#7a5230"/>
+    <circle cx="-5" cy="-10" r="6.5" fill="#6f9e4e"/>
+    <circle cx="5" cy="-10" r="6" fill="#7fae57"/>
+    <circle cx="0" cy="-15" r="7" fill="#8fbb63"/>
+    <circle cx="-3" cy="-13" r="2" fill="#a9c97a" opacity=".8"/>
+  </g>`;
+}
+function _decoTuft(x, y, s) {
+  return `<g transform="translate(${x} ${y}) scale(${s})" stroke="#6f9e4e" stroke-width="1.6" stroke-linecap="round" fill="none">
+    <path d="M0 0 Q-2.5 -4 -4 -5"/><path d="M0 0 Q0 -5 .5 -7"/><path d="M0 0 Q2.5 -4 4 -5"/>
+  </g>`;
+}
+function _decoFlowers(x, y) {
+  return `<g transform="translate(${x} ${y})">
+    <circle cx="0" cy="0" r="1.6" fill="#f2a3c0"/><circle cx="6" cy="-2" r="1.4" fill="#fff"/>
+    <circle cx="12" cy="1" r="1.5" fill="#ffd76e"/><circle cx="-6" cy="-1" r="1.3" fill="#fff"/>
+  </g>`;
+}
+function _decoSheep(x, y, s, flip) {
+  return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})" class="sheep">
+    <line x1="-4" y1="3" x2="-4" y2="7" stroke="#4a4038" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="3" y1="3" x2="3" y2="7" stroke="#4a4038" stroke-width="1.8" stroke-linecap="round"/>
+    <ellipse cx="0" cy="0" rx="8" ry="5.5" fill="#f6f3ec"/>
+    <circle cx="-5" cy="-3.5" r="3" fill="#fdfcf9"/><circle cx="1" cy="-4.5" r="3.2" fill="#fdfcf9"/><circle cx="6" cy="-3" r="2.6" fill="#fdfcf9"/>
+    <circle cx="8.5" cy="-1.5" r="3" fill="#4a4038"/>
+    <ellipse cx="6.5" cy="-3.5" rx="1.8" ry="1" fill="#4a4038"/>
+    <circle cx="9.5" cy="-2.2" r=".55" fill="#fff"/>
+  </g>`;
+}
 function _citySceneSVG() {
   return `
   <svg id="city-svg" viewBox="0 0 800 780" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Moj Grad — Küstenstadt">
@@ -323,32 +363,71 @@ function _citySceneSVG() {
         <stop offset="0" stop-color="#8ecdf0"/><stop offset=".45" stop-color="#bfe3f7"/><stop offset=".82" stop-color="#ffedc9"/><stop offset="1" stop-color="#ffe9c4"/>
       </linearGradient>
       <linearGradient id="cg-sea" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#4aa3d8"/><stop offset="1" stop-color="#2a6f9e"/>
+        <stop offset="0" stop-color="#4aa3d8"/><stop offset=".55" stop-color="#3487ba"/><stop offset="1" stop-color="#25628d"/>
       </linearGradient>
       <linearGradient id="cg-hill" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#a9c97a"/><stop offset="1" stop-color="#7fae57"/>
       </linearGradient>
+      <linearGradient id="cg-rock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#98a1b4"/><stop offset="1" stop-color="#7d8699"/>
+      </linearGradient>
+      <radialGradient id="cg-dirt" cx=".5" cy=".4" r=".75">
+        <stop offset="0" stop-color="#d8b98d"/><stop offset="1" stop-color="#b98f5e"/>
+      </radialGradient>
     </defs>
 
     <!-- Himmel (volle Höhe, Land ist nach unten versetzt) -->
     <rect x="0" y="0" width="800" height="720" fill="url(#cg-sky)"/>
     <circle cx="690" cy="95" r="38" fill="#ffd76e"/>
     <circle cx="690" cy="95" r="52" fill="#ffd76e" opacity=".25"/>
-    <g class="cloud cloud-a"><ellipse cx="0" cy="0" rx="42" ry="14" fill="#fff" opacity=".9"/><ellipse cx="28" cy="-8" rx="26" ry="11" fill="#fff" opacity=".9"/></g>
-    <g class="cloud cloud-b"><ellipse cx="0" cy="0" rx="34" ry="12" fill="#fff" opacity=".8"/><ellipse cx="-24" cy="-6" rx="20" ry="9" fill="#fff" opacity=".8"/></g>
+    <circle cx="690" cy="95" r="66" fill="#ffd76e" opacity=".12"/>
+    <g class="cloud cloud-a">
+      <ellipse cx="0" cy="0" rx="42" ry="14" fill="#fff" opacity=".92"/><ellipse cx="28" cy="-8" rx="26" ry="11" fill="#fff" opacity=".92"/>
+      <ellipse cx="-26" cy="-5" rx="20" ry="9" fill="#fff" opacity=".85"/><ellipse cx="6" cy="-12" rx="18" ry="9" fill="#fff" opacity=".95"/>
+    </g>
+    <g class="cloud cloud-b">
+      <ellipse cx="0" cy="0" rx="34" ry="12" fill="#fff" opacity=".82"/><ellipse cx="-24" cy="-6" rx="20" ry="9" fill="#fff" opacity=".82"/>
+      <ellipse cx="18" cy="-7" rx="15" ry="8" fill="#fff" opacity=".78"/>
+    </g>
+    <ellipse cx="150" cy="150" rx="26" ry="8" fill="#fff" opacity=".5"/>
+    <ellipse cx="560" cy="110" rx="32" ry="9" fill="#fff" opacity=".45"/>
     <g class="gull gull-a"><path d="M-9 0 Q-4.5 -6 0 -1 Q4.5 -6 9 0" fill="none" stroke="#4a5a6a" stroke-width="2" stroke-linecap="round"/></g>
     <g class="gull gull-b"><path d="M-7 0 Q-3.5 -5 0 -1 Q3.5 -5 7 0" fill="none" stroke="#4a5a6a" stroke-width="1.6" stroke-linecap="round"/></g>
 
     <g transform="translate(0 190)">
-    <!-- Berg (Biokovo) -->
-    <path d="M-20 300 L150 120 L260 220 L360 90 L520 260 L640 170 L820 300 Z" fill="#8b93a7"/>
-    <path d="M340 115 L360 90 L390 122 L372 118 L358 132 Z" fill="#f2f5f8"/>
+    <!-- Ferne Bergkette (Dunst) -->
+    <path d="M-20 300 L60 225 L160 275 L290 205 L430 278 L555 215 L690 272 L820 300 Z" fill="#aab4c6" opacity=".65"/>
+
+    <!-- Berg (Biokovo) mit Licht- und Schattenflanken -->
+    <path d="M-20 300 L150 120 L260 220 L360 90 L520 260 L640 170 L820 300 Z" fill="url(#cg-rock)"/>
+    <path d="M150 120 L235 200 L150 235 Z" fill="#78829a" opacity=".7"/>
+    <path d="M150 120 L70 210 L150 235 Z" fill="#a2abbd" opacity=".65"/>
+    <path d="M360 90 L520 260 L365 260 Z" fill="#78829a" opacity=".6"/>
+    <path d="M360 90 L255 210 L360 240 Z" fill="#a2abbd" opacity=".5"/>
+    <path d="M640 170 L745 265 L640 255 Z" fill="#78829a" opacity=".6"/>
     <path d="M-20 300 L120 190 L300 300 Z" fill="#7d8699" opacity=".6"/>
+    <!-- Schneekappen mit gezacktem Rand -->
+    <path d="M323 132 L360 90 L396 130 L382 124 L370 138 L357 127 L343 136 L331 126 Z" fill="#f4f7fa"/>
+    <path d="M127 146 L150 120 L172 143 L161 139 L150 150 L138 141 Z" fill="#eef2f6" opacity=".9"/>
+    <path d="M618 195 L640 170 L662 194 L651 189 L640 200 L628 190 Z" fill="#eef2f6" opacity=".85"/>
+    <!-- Felslinien -->
+    <g stroke="#6f7990" stroke-width="1.6" opacity=".45" fill="none" stroke-linecap="round">
+      <path d="M330 150 q10 22 4 40"/><path d="M385 140 q-4 26 6 44"/><path d="M170 165 q8 20 2 38"/>
+      <path d="M600 215 q8 16 4 30"/><path d="M470 215 q6 14 2 28"/>
+    </g>
+    <!-- Waldsaum am Bergfuß -->
+    ${[8, 52, 96, 148, 205, 258, 312, 415, 468, 522, 575, 628, 682, 735, 782]
+      .map((x, i) => _decoPine(x, 298, 0.85 + (i % 3) * 0.18, i % 2 === 0)).join('')}
 
     <!-- Hügel + Dorf-Hang -->
     <path d="M-10 320 Q200 240 420 290 Q620 330 810 280 L810 470 L-10 470 Z" fill="url(#cg-hill)"/>
+    <!-- Wiesenflecken für Tiefe -->
+    <ellipse cx="510" cy="300" rx="95" ry="22" fill="#b9d68d" opacity=".5"/>
+    <ellipse cx="200" cy="330" rx="80" ry="18" fill="#b9d68d" opacity=".4"/>
+    <ellipse cx="660" cy="345" rx="70" ry="16" fill="#98c26b" opacity=".5"/>
     <path d="M-10 380 Q250 330 500 372 Q680 400 810 370 L810 480 L-10 480 Z" fill="#8fbb63"/>
-    <!-- Zypressen als Deko -->
+    <ellipse cx="430" cy="420" rx="110" ry="20" fill="#9cc571" opacity=".55"/>
+    <!-- Bäume: Zypressen, Eichen, Kiefern natürlich verteilt -->
     <g fill="#3f6d3f">
       <path d="M95 268 Q84 250 88 232 Q92 214 95 208 Q98 214 102 232 Q106 250 95 268 Z"/>
       <rect x="93" y="266" width="4" height="8" fill="#6b4a2e"/>
@@ -357,27 +436,78 @@ function _citySceneSVG() {
       <path d="M737 330 Q728 314 731 298 Q734 286 737 280 Q740 286 743 298 Q746 314 737 330 Z"/>
       <rect x="735" y="328" width="4" height="7" fill="#6b4a2e"/>
     </g>
-    <!-- Bach: entspringt einem Bergsee, mäandert zum Meer (Brücke „most" führt darüber) -->
+    ${_decoOak(48, 330, 1)}${_decoOak(320, 268, 0.85)}${_decoOak(555, 282, 0.9)}${_decoOak(775, 355, 0.95)}
+    ${_decoPine(140, 300, 1, true)}${_decoPine(618, 300, 0.9, false)}${_decoPine(30, 430, 1.1, true)}${_decoPine(770, 440, 1, false)}
+    <!-- Grasbüschel + Blumen -->
+    ${_decoTuft(120, 355, 1)}${_decoTuft(250, 315, 1.1)}${_decoTuft(430, 300, 1)}${_decoTuft(580, 330, 1.1)}
+    ${_decoTuft(680, 415, 1)}${_decoTuft(320, 440, 1.1)}${_decoTuft(495, 435, 1)}${_decoTuft(70, 375, 1)}
+    ${_decoFlowers(405, 415)}${_decoFlowers(240, 372)}${_decoFlowers(560, 375)}${_decoFlowers(700, 340)}${_decoFlowers(160, 430)}
+    <!-- Schafe auf der Weide -->
+    ${_decoSheep(508, 264, 0.9, false)}${_decoSheep(548, 254, 1, true)}${_decoSheep(586, 268, 0.8, false)}
+
+    <!-- Bach: Sandufer, Wasser, Strömung, Kiesel -->
+    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
+          stroke="#d9cba6" stroke-width="19" fill="none" opacity=".85" stroke-linecap="round"/>
     <ellipse cx="186" cy="252" rx="16" ry="6" fill="#4aa3d8"/>
     <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
           stroke="#4aa3d8" stroke-width="13" fill="none" opacity=".95" stroke-linecap="round"/>
     <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
           stroke="#8fd0f2" stroke-width="5" fill="none" opacity=".85" stroke-linecap="round"/>
+    <path class="river-flow" d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
+          stroke="#e8f6ff" stroke-width="2" fill="none" opacity=".8" stroke-linecap="round" stroke-dasharray="5 17"/>
+    <g fill="#b8b0a4">
+      <ellipse cx="172" cy="278" rx="3" ry="2"/><ellipse cx="163" cy="308" rx="2.5" ry="1.8" fill="#cfc8bb"/>
+      <ellipse cx="176" cy="338" rx="3" ry="2" fill="#9b948a"/><ellipse cx="140" cy="382" rx="2.8" ry="2"/>
+      <ellipse cx="119" cy="420" rx="3" ry="2" fill="#cfc8bb"/><ellipse cx="141" cy="448" rx="3.2" ry="2.2" fill="#9b948a"/>
+    </g>
+
     <!-- Kleine Inseln am Horizont -->
     <ellipse cx="655" cy="452" rx="40" ry="7" fill="#7d8699" opacity=".55"/>
     <path d="M630 452 Q655 436 682 452 Z" fill="#8b93a7" opacity=".65"/>
     <ellipse cx="540" cy="455" rx="22" ry="4" fill="#7d8699" opacity=".4"/>
     <path d="M528 455 Q540 447 553 455 Z" fill="#8b93a7" opacity=".5"/>
     <path d="M540 447 L540 438 L546 445 Z" fill="#f6f0e0" opacity=".7"/>
-    <!-- Weg zum Dorf -->
-    <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#e8dcbf" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+    <!-- Weg zum Dorf mit Pflastersteinen -->
+    <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#e8dcbf" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+    <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#d5c49e" stroke-width="6" stroke-linecap="round" opacity=".6" stroke-dasharray="7 9"/>
 
-    <!-- Riva (Uferpromenade) -->
+    <!-- Riva (Uferpromenade) mit Steinfugen -->
     <path d="M-10 452 L810 452 L810 470 L-10 470 Z" fill="#d8cfc0"/>
+    <path d="M-10 452 L810 452 L810 454 L-10 454 Z" fill="#efe7d8"/>
+    <g stroke="#c4b9a5" stroke-width="1" opacity=".8">
+      ${[40, 120, 200, 280, 360, 440, 520, 600, 680, 760].map(x => `<line x1="${x}" y1="454" x2="${x}" y2="468"/>`).join('')}
+    </g>
     <path d="M-10 468 L810 468 L810 474 L-10 474 Z" fill="#b8ac94"/>
+    <!-- Angler auf der Riva -->
+    <g class="fisher" transform="translate(108 452)">
+      <circle cx="0" cy="-16" r="4.5" fill="#f2c9a0"/>
+      <path d="M-4.5 -18 Q0 -24 4.5 -18 L5 -16 L-5 -16 Z" fill="#c9553d"/>
+      <rect x="-4" y="-12" width="8" height="9" rx="2.5" fill="#4a7fb5"/>
+      <path d="M-4 -3 L-8 4 M4 -3 L4 4" stroke="#3d4a5a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="-3" y1="-9" x2="-26" y2="-24" stroke="#7a5230" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="-26" y1="-24" x2="-30" y2="22" stroke="#dfe9f2" stroke-width=".9"/>
+      <ellipse cx="-30" cy="24" rx="5" ry="1.6" fill="none" stroke="#bfe6ff" stroke-width="1" opacity=".8"/>
+    </g>
 
     <!-- Meer im Vordergrund (Blick vom Wasser) -->
     <rect x="0" y="472" width="800" height="130" fill="url(#cg-sea)"/>
+    <!-- Flachwasser an der Kaimauer (Diorama-Tiefe) -->
+    <rect x="0" y="472" width="800" height="9" fill="#71c1e4" opacity=".6"/>
+    <rect x="0" y="481" width="800" height="5" fill="#5db1d8" opacity=".4"/>
+    <!-- Sonnenglitzern auf dem Wasser -->
+    <g class="sea-glints" fill="#dff2ff">
+      <ellipse cx="628" cy="500" rx="34" ry="2.2" opacity=".4"/><ellipse cx="672" cy="514" rx="22" ry="1.8" opacity=".3"/>
+      <ellipse cx="590" cy="530" rx="26" ry="2" opacity=".28"/><ellipse cx="330" cy="545" rx="30" ry="2" opacity=".2"/>
+      <ellipse cx="150" cy="510" rx="24" ry="1.8" opacity=".22"/>
+    </g>
+    <!-- Fischschwarm unter Wasser -->
+    <g fill="#1f5680" opacity=".7">
+      <path d="M232 556 Q238 551 244 556 Q240 559 236 558 Z"/><path d="M252 563 Q258 558 264 563 Q260 566 256 565 Z"/>
+      <path d="M243 572 Q248 568 253 572 Q249 574 246 573 Z"/>
+    </g>
+    <!-- Felsen am Meeresgrund -->
+    <ellipse cx="60" cy="596" rx="42" ry="9" fill="#1c4a6e" opacity=".55"/>
+    <ellipse cx="748" cy="592" rx="50" ry="10" fill="#1c4a6e" opacity=".5"/>
     <g class="waves" stroke="#bfe6ff" stroke-width="2.5" fill="none" opacity=".65" stroke-linecap="round">
       <path d="M-40 494 Q-25 488 -10 494 T20 494 T50 494 T80 494 T110 494 T140 494 T170 494 T200 494 T230 494 T260 494 T290 494 T320 494 T350 494 T380 494 T410 494 T440 494 T470 494 T500 494 T530 494 T560 494 T590 494 T620 494 T650 494 T680 494 T710 494 T740 494 T770 494 T800 494 T830 494 T860 494"/>
     </g>
@@ -399,6 +529,78 @@ function _citySceneSVG() {
     <g id="city-spots"></g>
     </g>
   </svg>`;
+}
+
+/* ─── Bauplatz-Darstellung: fest mit dem Boden verbunden statt schwebender Kreise ─── */
+function _plotSignSVG(def, affordable) {
+  // Holzschild mit Preis am Rand des Fundaments
+  return `
+    <g class="plot-sign ${affordable ? 'affordable' : 'expensive'}" transform="translate(21 -4)">
+      <rect x="-1.5" y="-9" width="3" height="12" rx="1" fill="#7a5230"/>
+      <rect x="-17" y="-24" width="34" height="16" rx="4" class="plot-sign-board"/>
+      <rect x="-15" y="-22" width="30" height="12" rx="3" fill="none" stroke="#8a5c34" stroke-width="1" opacity=".7"/>
+      <text x="0" y="-12.5" text-anchor="middle" class="plot-sign-text">🪙${def.cost}</text>
+    </g>`;
+}
+function _plotThornsSVG() {
+  // Dorngestrüpp überwuchert den Platz; kleiner Stein mit Schlüsselloch erklärt die Sperre
+  return `
+    <g class="plot-thorns">
+      <g fill="none" stroke="#44633c" stroke-width="3" stroke-linecap="round">
+        <path d="M-26 -5 Q-14 -22 2 -12 Q14 -24 26 -7"/>
+        <path d="M-21 -1 Q-6 -15 10 -8 Q20 -16 26 -2"/>
+      </g>
+      <g fill="none" stroke="#5d8350" stroke-width="1.8" stroke-linecap="round">
+        <path d="M-16 -12 Q0 -3 15 -13"/>
+        <path d="M-24 -8 l-3 -3 M-8 -15 l-1 -4 M8 -14 l2 -4 M20 -12 l3 -3 M0 -9 l1 -4"/>
+      </g>
+      <ellipse cx="0" cy="-2" rx="7" ry="5.5" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
+      <circle cx="0" cy="-4" r="1.8" fill="#4c463e"/>
+      <path d="M-1 -3 L1 -3 L1.6 .5 L-1.6 .5 Z" fill="#4c463e"/>
+    </g>`;
+}
+function _plotGateSVG() {
+  // Verwittertes Eisentor für Premium-Plätze (reqTotal)
+  return `
+    <g class="plot-gate">
+      <path d="M-15 -20 Q0 -31 15 -20" fill="none" stroke="#3d4450" stroke-width="2.5"/>
+      <g stroke="#3d4450" stroke-width="1.8">
+        <line x1="-10" y1="-23" x2="-10" y2="-3"/><line x1="-5" y1="-26" x2="-5" y2="-3"/>
+        <line x1="0" y1="-27" x2="0" y2="-3"/><line x1="5" y1="-26" x2="5" y2="-3"/>
+        <line x1="10" y1="-23" x2="10" y2="-3"/>
+      </g>
+      <line x1="-14" y1="-12" x2="14" y2="-12" stroke="#3d4450" stroke-width="1.6"/>
+      <rect x="-21" y="-26" width="6" height="24" rx="2" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
+      <rect x="15" y="-26" width="6" height="24" rx="2" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
+      <circle cx="0" cy="-11" r="3.4" fill="#59616e"/>
+      <circle cx="0" cy="-12" r="1.2" fill="#20242c"/>
+      <path d="M-.8 -11.4 L.8 -11.4 L1.3 -8.6 L-1.3 -8.6 Z" fill="#20242c"/>
+      <path d="M-19 -5 q4 -4 8 -1 M13 -8 q4 -3 7 0" fill="none" stroke="#5d8350" stroke-width="1.6" stroke-linecap="round"/>
+    </g>`;
+}
+function _plotGhostSVG(def, s, lock, affordable) {
+  if (s.type === 'brod') {
+    // Liegeplatz im Wasser: Boje markiert ihn, kein Erdfundament
+    return `
+      <g class="plot-buoy">
+        <ellipse cx="0" cy="-1" rx="18" ry="5.5" class="plot-water-ring"/>
+        <path d="M-5 -3 L5 -3 L3 -20 L-3 -20 Z" fill="${lock ? '#98a2ad' : '#e05e5e'}"/>
+        <path d="M-4.4 -9 L4.3 -9 L3.8 -13 L-3.9 -13 Z" fill="#fff" opacity=".9"/>
+        <circle cx="0" cy="-22" r="3" fill="${lock ? '#7c8894' : '#c9553d'}"/>
+        ${lock ? `<circle cx="0" cy="-15" r="2.6" fill="#59616e"/><circle cx="0" cy="-15.6" r="1" fill="#20242c"/><path d="M-.6 -15.2 L.6 -15.2 L1 -13 L-1 -13 Z" fill="#20242c"/>`
+               : _plotSignSVG(def, affordable)}
+      </g>`;
+  }
+  // Vorbereitete Baustelle: geräumte Erde mit geätztem Fundament-Umriss
+  const dirt = `
+    <ellipse cx="0" cy="-8" rx="30" ry="13" class="plot-dirt"/>
+    <ellipse cx="0" cy="-8" rx="30" ry="13" class="plot-dirt-edge"/>
+    <path d="M-20 -6 q4 -2 8 0 M0 -14 q4 -2 8 0 M6 -3 q4 -2 8 0 M-12 -12 q3 -1.5 6 0" class="plot-rake"/>
+    <ellipse cx="-25" cy="-1" rx="3" ry="2" fill="#b8b0a4"/>
+    <ellipse cx="25" cy="-14" rx="2.5" ry="1.8" fill="#a89f92"/>
+    <ellipse cx="18" cy="-1" rx="2" ry="1.4" fill="#cfc8bb"/>`;
+  if (!lock) return dirt + _plotSignSVG(def, affordable);
+  return dirt + (def.reqTotal ? _plotGateSVG() : _plotThornsSVG());
 }
 
 function renderCity() {
@@ -433,10 +635,8 @@ function renderCity() {
       const affordable = coins >= def.cost;
       g.classList.add('ghost');
       if (lock) g.classList.add('locked');
-      g.innerHTML = `
-        <circle cx="0" cy="-18" r="24" class="ghost-ring"/>
-        <text x="0" y="-24" text-anchor="middle" class="ghost-icon">${lock ? '🔒' : '＋'}</text>
-        <text x="0" y="-4" text-anchor="middle" class="ghost-cost">${lock ? '' : (affordable ? '🪙' + def.cost : '🪙' + def.cost)}</text>`;
+      if (s.type === 'brod') g.classList.add('bob');
+      g.innerHTML = _plotGhostSVG(def, s, lock, affordable);
       g.addEventListener('click', () => _openBuildConfirm(def, s.spot));
     }
     layer.appendChild(g);
