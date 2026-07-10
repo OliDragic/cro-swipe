@@ -879,6 +879,28 @@ function renderHome() {
     grid.appendChild(card);
   });
 
+  // Kroatische Laute als eigene Karte im Grid (statt separatem Banner)
+  const lauteCard = document.createElement('button');
+  lauteCard.className = 'category-card laute-card';
+  lauteCard.innerHTML = `
+    <div class="category-card-emoji laute-card-chars">č ć š ž</div>
+    <div class="category-card-name">Kroatische Laute</div>
+    <div class="category-card-progress">Hören &amp; erkennen</div>`;
+  lauteCard.addEventListener('click', () => {
+    AudioManager.unlock();
+    renderCharsGuide();
+    navigate('chars-guide');
+  });
+  grid.appendChild(lauteCard);
+
+  // Moj-Grad-Kachel: Novčići + Einwohner aktualisieren
+  if (typeof cityCoins === 'function') {
+    const c = document.getElementById('cth-coins');
+    const pop = document.getElementById('cth-pop');
+    if (c) c.textContent = cityCoins();
+    if (pop) pop.textContent = cityPopulation();
+  }
+
   // Grammar unlock progress bar — Schwelle = echte Phase-4-Freischaltung
   const GRAMMAR_THRESHOLD = grammarUnlockThreshold(p);
   const unlockBar = document.getElementById('grammar-unlock-bar');

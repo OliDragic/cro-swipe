@@ -25,6 +25,12 @@ const CITY_BUILDINGS = [
   { id: 'svjetionik', hr: 'svjetionik',    de: 'Leuchtturm',   emoji: '🗼', cost: 1300, reqTotal: 40 },
   { id: 'zidine',     hr: 'zidine',        de: 'Stadtmauern',  emoji: '🧱', cost: 1400, reqTotal: 60 },
   { id: 'dvorac',     hr: 'dvorac',        de: 'Burg',         emoji: '🏰', cost: 1600, reqTotal: 80 },
+  { id: 'kamp',       hr: 'kamp',          de: 'Campingplatz', emoji: '⛺', cost: 700,  req: { cat: 'Kroatien',  n: 8 } },
+  { id: 'park',       hr: 'park',          de: 'Park',         emoji: '🌲', cost: 750,  req: { cat: 'Natur',     n: 12 } },
+  { id: 'most',       hr: 'most',          de: 'Brücke',       emoji: '🌉', cost: 800,  req: { cat: 'Fahrzeuge', n: 12 } },
+  { id: 'pekara',     hr: 'pekara',        de: 'Bäckerei',     emoji: '🥖', cost: 850,  req: { cat: 'Essen',     n: 20 } },
+  { id: 'kino',       hr: 'kino',          de: 'Kino',         emoji: '🎬', cost: 900,  req: { cat: 'Freizeit',  n: 10 } },
+  { id: 'muzej',      hr: 'muzej',         de: 'Museum',       emoji: '🏛️', cost: 1100, req: { cat: 'Schule',    n: 15 } },
 ];
 
 /* ─── Feste Bauplätze in der Szene (SVG-Koordinaten, viewBox 800×560) ───
@@ -32,7 +38,13 @@ const CITY_BUILDINGS = [
 const CITY_SPOTS = [
   { spot: 'dvorac',     type: 'dvorac',     x: 236, y: 208, scale: 1.15 },
   { spot: 'zidine',     type: 'zidine',     x: 355, y: 235, scale: 1.0  },
-  { spot: 'zoo',        type: 'zoo',        x: 108, y: 330, scale: 1.0  },
+  { spot: 'zoo',        type: 'zoo',        x: 85,  y: 325, scale: 0.95 },
+  { spot: 'kamp',       type: 'kamp',       x: 742, y: 302, scale: 1.0  },
+  { spot: 'park',       type: 'park',       x: 745, y: 390, scale: 1.0  },
+  { spot: 'most',       type: 'most',       x: 141, y: 408, scale: 1.0  },
+  { spot: 'pekara',     type: 'pekara',     x: 215, y: 348, scale: 0.95 },
+  { spot: 'kino',       type: 'kino',       x: 585, y: 358, scale: 0.95 },
+  { spot: 'muzej',      type: 'muzej',      x: 368, y: 338, scale: 1.0  },
   { spot: 'crkva',      type: 'crkva',      x: 300, y: 300, scale: 1.1  },
   { spot: 'kuca2',      type: 'kuca',       x: 420, y: 302, scale: 0.95 },
   { spot: 'skola',      type: 'skola',      x: 520, y: 308, scale: 1.05 },
@@ -60,7 +72,11 @@ const CITY_ART = {
     <path d="M-31 -38 L0 -60 L31 -38 Z" fill="#c9553d" stroke="#a8432f" stroke-width="1.5"/>
     <rect x="-8" y="-20" width="16" height="20" rx="1.5" fill="#7a5b3a"/>
     <rect x="-21" y="-32" width="11" height="11" rx="1" fill="#9fd1ef" stroke="#6f8ba1"/>
-    <rect x="10" y="-32" width="11" height="11" rx="1" fill="#9fd1ef" stroke="#6f8ba1"/>`,
+    <rect x="10" y="-32" width="11" height="11" rx="1" fill="#9fd1ef" stroke="#6f8ba1"/>
+    <g stroke="#5d8a56" stroke-width="2"><line x1="-23" y1="-32" x2="-23" y2="-21"/><line x1="-8" y1="-32" x2="-8" y2="-21"/><line x1="8" y1="-32" x2="8" y2="-21"/><line x1="23" y1="-32" x2="23" y2="-21"/></g>
+    <rect x="-21" y="-21" width="11" height="2.5" fill="#c9553d"/>
+    <rect x="10" y="-21" width="11" height="2.5" fill="#c9553d"/>
+    <g fill="#e5568c"><circle cx="-18" cy="-22" r="1.6"/><circle cx="-13" cy="-22.5" r="1.6"/><circle cx="13" cy="-22" r="1.6"/><circle cx="18" cy="-22.5" r="1.6"/></g>`,
   stablo: `
     <rect x="-4" y="-22" width="8" height="22" rx="2" fill="#8a6240"/>
     <circle cx="0" cy="-34" r="20" fill="#4e8a4a"/>
@@ -76,7 +92,10 @@ const CITY_ART = {
     <ellipse cx="0" cy="-6" rx="19" ry="5" fill="#7ec8ff"/>
     <rect x="-3" y="-26" width="6" height="20" fill="#d8cfc0" stroke="#b0a48f"/>
     <ellipse cx="0" cy="-28" rx="9" ry="3" fill="#7ec8ff"/>
-    <path d="M-7 -28 Q0 -40 7 -28" fill="none" stroke="#9fd1ef" stroke-width="2.5" stroke-linecap="round"/>`,
+    <g class="fountain-jet">
+      <path d="M-7 -28 Q0 -40 7 -28" fill="none" stroke="#9fd1ef" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M-4 -28 Q0 -36 4 -28" fill="none" stroke="#cfeafc" stroke-width="2" stroke-linecap="round"/>
+    </g>`,
   igraliste: `
     <path d="M-24 0 L-10 -30 L4 0 Z" fill="#f2a24b" stroke="#d18432" stroke-width="1.5"/>
     <rect x="-12" y="-30" width="6" height="30" rx="3" fill="#e05e5e"/>
@@ -116,7 +135,13 @@ const CITY_ART = {
     <rect x="-20" y="-24" width="40" height="7" rx="3" fill="#7a5b3a"/>
     <text x="0" y="-17.5" font-size="7" text-anchor="middle" fill="#f6ecd8" font-family="sans-serif" font-weight="bold">KONOBA</text>
     <rect x="-7" y="-14" width="14" height="14" rx="1.5" fill="#5f4630"/>
-    <circle cx="16" cy="-10" r="4" fill="#f2c94c" opacity=".85"/>`,
+    <circle cx="16" cy="-10" r="4" fill="#f2c94c" opacity=".85"/>
+    <rect x="14" y="-54" width="7" height="12" fill="#8a7a5c"/>
+    <g class="smoke" fill="#f2f2f2">
+      <circle cx="18" cy="-58" r="3"/>
+      <circle cx="20" cy="-66" r="4"/>
+      <circle cx="16" cy="-75" r="5"/>
+    </g>`,
   crkva: `
     <rect x="-20" y="-36" width="40" height="36" rx="2" fill="#f6ecd8" stroke="#c9b99a" stroke-width="1.5"/>
     <path d="M-24 -36 L0 -50 L24 -36 Z" fill="#c9553d"/>
@@ -164,7 +189,56 @@ const CITY_ART = {
     <path d="M-30 -34 h6 v-5 h6 v5 h6 v-5 h6 v5 h6 v-5 h6 v5 h6" fill="none" stroke="#a89a7e" stroke-width="1.5"/>
     <path d="M-6 -16 a6 6 0 0 1 12 0 V0 H-6 Z" fill="#5f5545"/>
     <line x1="-31" y1="-52" x2="-31" y2="-64" stroke="#8f5c36" stroke-width="2"/>
-    <path d="M-31 -64 L-19 -60 L-31 -56 Z" fill="#e05e5e"/>`,
+    <g class="castle-flag"><path d="M-31 -64 L-19 -60 L-31 -56 Z" fill="#e05e5e"/></g>`,
+  kamp: `
+    <path d="M-22 0 L0 -32 L22 0 Z" fill="#f2a24b" stroke="#d18432" stroke-width="1.5"/>
+    <path d="M-8 0 L0 -32 L8 0 Z" fill="#c77f2e"/>
+    <path d="M-4 0 L0 -14 L4 0 Z" fill="#5f4630"/>
+    <g transform="translate(30 0)">
+      <line x1="-6" y1="-2" x2="6" y2="-8" stroke="#6b4a2e" stroke-width="2"/>
+      <line x1="-6" y1="-8" x2="6" y2="-2" stroke="#6b4a2e" stroke-width="2"/>
+      <path class="fire-flame" d="M0 -8 Q-5 -14 0 -20 Q5 -14 0 -8" fill="#f2994b"/>
+      <path class="fire-flame" d="M0 -9 Q-2.5 -13 0 -17 Q2.5 -13 0 -9" fill="#ffd76e"/>
+    </g>`,
+  park: `
+    <rect x="-4" y="-16" width="8" height="16" rx="2" fill="#8a6240" transform="translate(-18 0)"/>
+    <circle cx="-18" cy="-26" r="14" fill="#4e8a4a"/>
+    <rect x="-4" y="-13" width="8" height="13" rx="2" fill="#8a6240" transform="translate(20 0)"/>
+    <circle cx="20" cy="-21" r="11" fill="#5d9c56"/>
+    <rect x="-9" y="-9" width="20" height="3" rx="1.5" fill="#b0764a"/>
+    <line x1="-7" y1="-6" x2="-7" y2="0" stroke="#8f5c36" stroke-width="2"/>
+    <line x1="9" y1="-6" x2="9" y2="0" stroke="#8f5c36" stroke-width="2"/>
+    <rect x="-9" y="-14" width="20" height="3" rx="1.5" fill="#c9915c"/>`,
+  most: `
+    <path d="M-30 0 L-30 -14 Q0 -30 30 -14 L30 0 L22 0 L22 -10 Q0 -22 -22 -10 L-22 0 Z"
+          fill="#d8cfc0" stroke="#a89a7e" stroke-width="1.5"/>
+    <g stroke="#a89a7e" stroke-width="1">
+      <line x1="-15" y1="-13" x2="-15" y2="-19"/><line x1="0" y1="-16" x2="0" y2="-23"/><line x1="15" y1="-13" x2="15" y2="-19"/>
+    </g>
+    <line x1="-28" y1="-16" x2="28" y2="-16" stroke="#b8ac94" stroke-width="2.5"/>`,
+  pekara: `
+    <rect x="-24" y="-28" width="48" height="28" rx="2" fill="#f2e3c4" stroke="#cbb890" stroke-width="1.5"/>
+    <path d="M-28 -28 L0 -42 L28 -28 Z" fill="#b0764a"/>
+    <path d="M-24 -22 Q-18 -16 -12 -22 Q-6 -16 0 -22 Q6 -16 12 -22 Q18 -16 24 -22" fill="#e05e5e" stroke="#c14a4a"/>
+    <rect x="-6" y="-13" width="12" height="13" rx="1.5" fill="#7a5b3a"/>
+    <ellipse cx="15" cy="-17" rx="6" ry="3.5" fill="#d9a45c" stroke="#b07f38" transform="rotate(-20 15 -17)"/>
+    <rect x="-19" y="-18" width="9" height="8" fill="#9fd1ef" stroke="#6f8ba1"/>`,
+  kino: `
+    <rect x="-28" y="-32" width="56" height="32" rx="2" fill="#5a6b8a" stroke="#43506b" stroke-width="1.5"/>
+    <rect x="-30" y="-38" width="60" height="9" rx="2" fill="#f6f0e0" stroke="#d8cfc0"/>
+    <text x="0" y="-30.5" font-size="8" text-anchor="middle" fill="#c9553d" font-family="sans-serif" font-weight="bold">KINO</text>
+    <rect x="-8" y="-14" width="16" height="14" rx="1.5" fill="#2e3547"/>
+    <path d="M-19 -24 L-17 -19 L-12 -19 L-16 -16 L-14 -11 L-19 -14 L-24 -11 L-22 -16 L-26 -19 L-21 -19 Z" fill="#ffd76e"/>
+    <circle cx="18" cy="-20" r="4.5" fill="#ffd76e" opacity=".85"/>`,
+  muzej: `
+    <rect x="-30" y="-6" width="60" height="6" fill="#c8bda6" stroke="#a89a7e"/>
+    <rect x="-26" y="-30" width="52" height="24" fill="#f2ead8" stroke="#cbb890" stroke-width="1.5"/>
+    <g fill="#e4d9c0" stroke="#b8ac94">
+      <rect x="-22" y="-28" width="6" height="22"/><rect x="-8" y="-28" width="6" height="22"/>
+      <rect x="6" y="-28" width="6" height="22"/><rect x="18" y="-28" width="6" height="22"/>
+    </g>
+    <path d="M-32 -30 L0 -46 L32 -30 Z" fill="#e4d9c0" stroke="#b8ac94" stroke-width="1.5"/>
+    <circle cx="0" cy="-36" r="3.5" fill="#c9553d"/>`,
 };
 
 /* ─── Bewohner: erscheinen mit wachsender Einwohnerzahl.
@@ -283,9 +357,18 @@ function _citySceneSVG() {
       <path d="M737 330 Q728 314 731 298 Q734 286 737 280 Q740 286 743 298 Q746 314 737 330 Z"/>
       <rect x="735" y="328" width="4" height="7" fill="#6b4a2e"/>
     </g>
-    <!-- Kleine Inseln am Horizont rechts -->
+    <!-- Bach: entspringt einem Bergsee, mäandert zum Meer (Brücke „most" führt darüber) -->
+    <ellipse cx="186" cy="252" rx="16" ry="6" fill="#4aa3d8"/>
+    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
+          stroke="#4aa3d8" stroke-width="13" fill="none" opacity=".95" stroke-linecap="round"/>
+    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
+          stroke="#8fd0f2" stroke-width="5" fill="none" opacity=".85" stroke-linecap="round"/>
+    <!-- Kleine Inseln am Horizont -->
     <ellipse cx="655" cy="452" rx="40" ry="7" fill="#7d8699" opacity=".55"/>
     <path d="M630 452 Q655 436 682 452 Z" fill="#8b93a7" opacity=".65"/>
+    <ellipse cx="540" cy="455" rx="22" ry="4" fill="#7d8699" opacity=".4"/>
+    <path d="M528 455 Q540 447 553 455 Z" fill="#8b93a7" opacity=".5"/>
+    <path d="M540 447 L540 438 L546 445 Z" fill="#f6f0e0" opacity=".7"/>
     <!-- Weg zum Dorf -->
     <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#e8dcbf" stroke-width="10" stroke-linecap="round" opacity=".7"/>
 
@@ -304,6 +387,12 @@ function _citySceneSVG() {
 
     <g class="waves" stroke="#8fc5e8" stroke-width="2" fill="none" opacity=".35" stroke-linecap="round">
       <path d="M-40 566 Q-25 560 -10 566 T20 566 T50 566 T80 566 T110 566 T140 566 T170 566 T200 566 T230 566 T260 566 T290 566 T320 566 T350 566 T380 566 T410 566 T440 566 T470 566 T500 566 T530 566 T560 566 T590 566 T620 566 T650 566 T680 566 T710 566 T740 566 T770 566 T800 566 T830 566 T860 566"/>
+    </g>
+    <!-- Springender Fisch -->
+    <g class="fish" transform="translate(580 520)">
+      <path d="M-8 0 Q0 -9 8 0 Q3 3 0 2 Q-3 3 -8 0 Z" fill="#7ea8c4"/>
+      <path d="M8 0 L14 -5 L14 5 Z" fill="#6b94b0"/>
+      <circle cx="-4" cy="-2" r="1.2" fill="#2e3547"/>
     </g>
 
     <!-- Bauplätze -->
@@ -352,6 +441,31 @@ function renderCity() {
     }
     layer.appendChild(g);
   });
+
+  // Auto-Dekor: die Stadt wird von selbst lebendiger, je mehr gebaut ist
+  const builtCount = city.buildings.length;
+  if (builtCount >= 6) {
+    [250, 450, 650].forEach(x => {
+      const lamp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      lamp.setAttribute('transform', `translate(${x} 452)`);
+      lamp.innerHTML = `
+        <line x1="0" y1="0" x2="0" y2="-26" stroke="#43506b" stroke-width="2.5"/>
+        <circle cx="0" cy="-28" r="4" fill="#ffe9a8" stroke="#43506b" stroke-width="1.5"/>`;
+      layer.appendChild(lamp);
+    });
+  }
+  if (builtCount >= 12) {
+    const bunting = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    let tris = '';
+    for (let x = 320; x <= 500; x += 20) {
+      const y = 402 + Math.sin((x - 320) / 180 * Math.PI) * 8;
+      const col = ['#e05e5e', '#f2c94c', '#4a7fb5', '#7bb661'][(x / 20) % 4 | 0];
+      tris += `<path d="M${x} ${y} l4.5 8 l4.5 -8 Z" fill="${col}"/>`;
+    }
+    bunting.innerHTML = `
+      <path d="M320 402 Q410 418 500 402" fill="none" stroke="#8a7a5c" stroke-width="1.5"/>${tris}`;
+    layer.appendChild(bunting);
+  }
 
   // Bewohner erscheinen, wenn die Stadt genug Einwohner hat
   const pop = cityPopulation();

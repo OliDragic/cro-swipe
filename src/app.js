@@ -216,11 +216,7 @@ function wireEvents() {
     navigate('home');
   });
 
-  // ── Kroatische Laute (home banner → dedicated section) ──
-  document.getElementById('btn-laute-banner').addEventListener('click', () => {
-    renderCharsGuide();
-    navigate('chars-guide');
-  });
+  // Kroatische Laute: Karte wird in renderHome() im Lernwelten-Grid erzeugt
 
   // ── Zeichen-Picker ──
   document.getElementById('chars-back').addEventListener('click', () => navigate('chars-guide'));

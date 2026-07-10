@@ -209,18 +209,18 @@
     <div class="xp-bar-outer">
       <div class="xp-bar-inner" id="home-xp-bar"></div>
     </div>
-    <!-- Focus Card: zeigt das Wichtigste (Review / Tagesziel / WOTD) -->
-    <div class="focus-card" id="focus-card"></div>
-
-    <!-- Moj Grad — Belohnungs-Stadt -->
-    <button class="city-banner" id="btn-city-banner">
-      <span class="city-banner-emoji">🏝️</span>
-      <span class="city-banner-info">
-        <strong>Moj Grad</strong>
-        <span>Baue dein kroatisches Küstendorf!</span>
-      </span>
-      <span class="city-banner-arrow">→</span>
-    </button>
+    <!-- Hero-Reihe: die zwei Orte der App — Lernen (kontextuell) und die Stadt -->
+    <div class="home-hero">
+      <div class="focus-card hero-tile" id="focus-card"></div>
+      <button class="hero-tile city-tile-home" id="btn-city-banner">
+        <span class="cth-emoji">🏝️</span>
+        <strong class="cth-title">Moj Grad</strong>
+        <span class="cth-stats">
+          <span class="cth-stat">🪙 <b id="cth-coins">0</b></span>
+          <span class="cth-stat">👥 <b id="cth-pop">0</b></span>
+        </span>
+      </button>
+    </div>
 
     <!-- Hidden data elements (used by JS, not shown directly) -->
     <div style="display:none">
@@ -233,15 +233,8 @@
 
     <h3 class="home-section-title">🌍 Lernwelten</h3>
     <main class="categories-grid" id="categories-grid">
-      <!-- Kategorie-Karten per JS -->
+      <!-- Kategorie-Karten (inkl. Laute-Karte) per JS -->
     </main>
-
-    <!-- Kroatische Laute — compact chip (sekundär, unter den Lernwelten) -->
-    <button class="laute-chip" id="btn-laute-banner">
-      <span class="laute-chip-chars">č ć š ž đ</span>
-      <span class="laute-chip-label">Kroatische Laute</span>
-      <span class="laute-chip-arrow">→</span>
-    </button>
     <nav class="bottom-nav" id="home-nav">
       <button class="nav-btn active" data-screen="home">
         <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
