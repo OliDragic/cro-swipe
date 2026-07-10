@@ -246,6 +246,8 @@ function updateSwipeProgress() {
 function showSwipeResult() {
   const sw = state.swipe;
   const total = sw.words.length;
+  logUsage({ ev: 'end', mode: 'swipe', cat: state.currentCategory?.id || null,
+             ok: sw.known || sw.correct || 0, total, xp: sw.xpGained });
 
   // Award XP + level-up check
   if (state.profile) {

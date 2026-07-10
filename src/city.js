@@ -9,22 +9,22 @@
 
 /* ─── Gebäude-Katalog ─── */
 const CITY_BUILDINGS = [
-  { id: 'kuca',       hr: 'kuća',          de: 'Haus',         emoji: '🏠', cost: 100 },
-  { id: 'stablo',     hr: 'stablo',        de: 'Baum',         emoji: '🌳', cost: 50  },
-  { id: 'cvijece',    hr: 'cvijeće',       de: 'Blumen',       emoji: '🌷', cost: 60  },
-  { id: 'fontana',    hr: 'fontana',       de: 'Brunnen',      emoji: '⛲', cost: 180 },
-  { id: 'igraliste',  hr: 'igralište',     de: 'Spielplatz',   emoji: '🛝', cost: 140, req: { cat: 'Freizeit',  n: 5 } },
-  { id: 'plaza',      hr: 'plaža',         de: 'Strand',       emoji: '🏖️', cost: 150, req: { cat: 'Natur',     n: 8 } },
-  { id: 'brod',       hr: 'brod',          de: 'Boot',         emoji: '⛵', cost: 180, req: { cat: 'Fahrzeuge', n: 5 } },
-  { id: 'trznica',    hr: 'tržnica',       de: 'Markt',        emoji: '🍎', cost: 200, req: { cat: 'Essen',     n: 10 } },
-  { id: 'skola',      hr: 'škola',         de: 'Schule',       emoji: '🏫', cost: 220, req: { cat: 'Schule',    n: 10 } },
-  { id: 'konoba',     hr: 'konoba',        de: 'Wirtshaus',    emoji: '🍽️', cost: 240, req: { cat: 'Essen',     n: 15 } },
-  { id: 'crkva',      hr: 'crkva',         de: 'Kirche',       emoji: '⛪', cost: 250, req: { cat: 'Hallo Kroatien', n: 10 } },
-  { id: 'luka',       hr: 'luka',          de: 'Hafen',        emoji: '⚓', cost: 260, req: { cat: 'Fahrzeuge', n: 8 } },
-  { id: 'zoo',        hr: 'zoološki vrt',  de: 'Zoo',          emoji: '🦁', cost: 300, req: { cat: 'Tiere',     n: 15 } },
-  { id: 'svjetionik', hr: 'svjetionik',    de: 'Leuchtturm',   emoji: '🗼', cost: 320, reqTotal: 40 },
-  { id: 'zidine',     hr: 'zidine',        de: 'Stadtmauern',  emoji: '🧱', cost: 350, reqTotal: 60 },
-  { id: 'dvorac',     hr: 'dvorac',        de: 'Burg',         emoji: '🏰', cost: 400, reqTotal: 80 },
+  { id: 'kuca',       hr: 'kuća',          de: 'Haus',         emoji: '🏠', cost: 400 },
+  { id: 'stablo',     hr: 'stablo',        de: 'Baum',         emoji: '🌳', cost: 200  },
+  { id: 'cvijece',    hr: 'cvijeće',       de: 'Blumen',       emoji: '🌷', cost: 240  },
+  { id: 'fontana',    hr: 'fontana',       de: 'Brunnen',      emoji: '⛲', cost: 700 },
+  { id: 'igraliste',  hr: 'igralište',     de: 'Spielplatz',   emoji: '🛝', cost: 550, req: { cat: 'Freizeit',  n: 5 } },
+  { id: 'plaza',      hr: 'plaža',         de: 'Strand',       emoji: '🏖️', cost: 600, req: { cat: 'Natur',     n: 8 } },
+  { id: 'brod',       hr: 'brod',          de: 'Boot',         emoji: '⛵', cost: 700, req: { cat: 'Fahrzeuge', n: 5 } },
+  { id: 'trznica',    hr: 'tržnica',       de: 'Markt',        emoji: '🍎', cost: 800, req: { cat: 'Essen',     n: 10 } },
+  { id: 'skola',      hr: 'škola',         de: 'Schule',       emoji: '🏫', cost: 900, req: { cat: 'Schule',    n: 10 } },
+  { id: 'konoba',     hr: 'konoba',        de: 'Wirtshaus',    emoji: '🍽️', cost: 950, req: { cat: 'Essen',     n: 15 } },
+  { id: 'crkva',      hr: 'crkva',         de: 'Kirche',       emoji: '⛪', cost: 1000, req: { cat: 'Hallo Kroatien', n: 10 } },
+  { id: 'luka',       hr: 'luka',          de: 'Hafen',        emoji: '⚓', cost: 1050, req: { cat: 'Fahrzeuge', n: 8 } },
+  { id: 'zoo',        hr: 'zoološki vrt',  de: 'Zoo',          emoji: '🦁', cost: 1200, req: { cat: 'Tiere',     n: 15 } },
+  { id: 'svjetionik', hr: 'svjetionik',    de: 'Leuchtturm',   emoji: '🗼', cost: 1300, reqTotal: 40 },
+  { id: 'zidine',     hr: 'zidine',        de: 'Stadtmauern',  emoji: '🧱', cost: 1400, reqTotal: 60 },
+  { id: 'dvorac',     hr: 'dvorac',        de: 'Burg',         emoji: '🏰', cost: 1600, reqTotal: 80 },
 ];
 
 /* ─── Feste Bauplätze in der Szene (SVG-Koordinaten, viewBox 800×560) ───
@@ -166,6 +166,32 @@ const CITY_ART = {
     <line x1="-31" y1="-52" x2="-31" y2="-64" stroke="#8f5c36" stroke-width="2"/>
     <path d="M-31 -64 L-19 -60 L-31 -56 Z" fill="#e05e5e"/>`,
 };
+
+/* ─── Bewohner: erscheinen mit wachsender Einwohnerzahl.
+   Antippen → kroatischer Gruß + Kurz-Übung (nur freigeschaltete Wörter,
+   da selectSessionWords über wordsForProfile ausschließlich freigeschaltete
+   Kategorien liefert). ─── */
+const CITY_VILLAGERS = [
+  { id: 'ana',   name: 'Ana',   minPop: 30,  x: 415, y: 448, greetHr: 'Dobar dan!',  greetDe: 'Guten Tag!',
+    shirt: '#e05e5e', skirt: true },
+  { id: 'marko', name: 'Marko', minPop: 90,  x: 490, y: 450, greetHr: 'Bok!',        greetDe: 'Hallo!',
+    shirt: '#4a7fb5', skirt: false },
+  { id: 'ivana', name: 'Ivana', minPop: 180, x: 250, y: 445, greetHr: 'Dobro jutro!', greetDe: 'Guten Morgen!',
+    shirt: '#7bb661', skirt: true },
+];
+
+function _villagerArt(v) {
+  return `
+    <circle cx="0" cy="-30" r="7.5" fill="#f2c9a0"/>
+    <path d="M-7 -33 Q0 -42 7 -33 Q4 -37 0 -37 Q-4 -37 -7 -33 Z" fill="#6b4a2e"/>
+    ${v.skirt
+      ? `<path d="M-6 -23 L6 -23 L10 -4 L-10 -4 Z" fill="${v.shirt}"/>`
+      : `<rect x="-6.5" y="-23" width="13" height="14" rx="3" fill="${v.shirt}"/>
+         <rect x="-6" y="-9" width="5" height="9" fill="#3d4a5a"/>
+         <rect x="1" y="-9" width="5" height="9" fill="#3d4a5a"/>`}
+    <line x1="-6" y1="-20" x2="-11" y2="-11" stroke="#f2c9a0" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="6" y1="-20" x2="11" y2="-11" stroke="#f2c9a0" stroke-width="2.5" stroke-linecap="round"/>`;
+}
 
 /* ─── Stadt-Zustand ─── */
 function _cityState() {
@@ -326,6 +352,41 @@ function renderCity() {
     }
     layer.appendChild(g);
   });
+
+  // Bewohner erscheinen, wenn die Stadt genug Einwohner hat
+  const pop = cityPopulation();
+  CITY_VILLAGERS.forEach(v => {
+    if (pop < v.minPop) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', `translate(${v.x} ${v.y})`);
+    g.classList.add('city-spot', 'villager');
+    g.innerHTML = _villagerArt(v);
+    g.addEventListener('click', () => _openVillagerSheet(v));
+    layer.appendChild(g);
+  });
+}
+
+/* Bewohner-Dialog: Gruß hören + Kurz-Übung mit passenden Wörtern */
+function _openVillagerSheet(v) {
+  AudioManager.unlock();
+  AudioManager.speakText(v.greetHr, 'hr');
+
+  const sheet = document.getElementById('city-villager-sheet');
+  document.getElementById('cv-name').textContent = v.name;
+  document.getElementById('cv-hr').textContent = v.greetHr;
+  document.getElementById('cv-de').textContent = v.greetDe;
+
+  document.getElementById('cv-speak').onclick = () => {
+    AudioManager.unlock();
+    AudioManager.speakText(v.greetHr, 'hr');
+  };
+  document.getElementById('cv-quiz').onclick = () => {
+    sheet.classList.add('hidden');
+    state.currentCategory = null;         // gemischte Übung aus freigeschalteten Kategorien
+    AudioManager.unlock();
+    startTapGame(null);
+  };
+  sheet.classList.remove('hidden');
 }
 
 /* Bau-Dialog für einen konkreten Platz */
@@ -363,7 +424,7 @@ async function _buildBuilding(def, spot) {
   if (city.buildings.find(b => b.spot === spot)) return;
 
   city.spent += def.cost;
-  city.buildings.push({ type: def.id, spot });
+  city.buildings.push({ type: def.id, spot, paid: def.cost });
   document.getElementById('city-build-sheet').classList.add('hidden');
   renderCity();
   showConfetti(20);
@@ -390,10 +451,15 @@ function _showBuildingInfo(def, spot) {
     AudioManager.speakText(def.hr, 'hr');
   };
   document.getElementById('ci-demolish').onclick = async () => {
-    if (!confirm(`${def.emoji} ${def.hr} abreißen? Du bekommst ${Math.floor(def.cost / 2)} Novčići zurück.`)) return;
     const city = _cityState();
+    const entry = city.buildings.find(b => b.spot === spot);
+    // Erstattung = Hälfte des BEZAHLTEN Preises. Alt-Gebäude (vor der
+    // Preiserhöhung, ohne paid-Feld) zahlten ~1/4 der heutigen Kosten.
+    const paid = entry?.paid ?? Math.round(def.cost / 4);
+    const refund = Math.floor(paid / 2);
+    if (!confirm(`${def.emoji} ${def.hr} abreißen? Du bekommst ${refund} Novčići zurück.`)) return;
     city.buildings = city.buildings.filter(b => b.spot !== spot);
-    city.spent = Math.max(0, city.spent - Math.floor(def.cost / 2));
+    city.spent = Math.max(0, city.spent - refund);
     info.classList.add('hidden');
     renderCity();
     await saveProfile();
@@ -430,6 +496,12 @@ function wireCityEvents() {
     document.getElementById('city-info-sheet').classList.add('hidden');
   });
   document.getElementById('city-info-sheet').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+  });
+  document.getElementById('cv-close').addEventListener('click', () => {
+    document.getElementById('city-villager-sheet').classList.add('hidden');
+  });
+  document.getElementById('city-villager-sheet').addEventListener('click', e => {
     if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
   });
 }

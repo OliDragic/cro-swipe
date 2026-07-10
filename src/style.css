@@ -3282,3 +3282,24 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
   .categories-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .laute-chip { margin: 4px 16px 14px; width: calc(100% - 32px); }
+
+/* ═══ Stadt-Bewohner + Dashboard-Auswertung ═══ */
+.city-spot.villager { animation: villager-idle 3.2s ease-in-out infinite; }
+@keyframes villager-idle { 0%,100% { translate: 0 0; } 50% { translate: 0 -2.5px; } }
+@media (prefers-reduced-motion: reduce) { .city-spot.villager { animation: none; } }
+.cv-bubble {
+  background: #f0f6fc; border-radius: 14px; padding: 10px 14px; margin: 2px 0 6px;
+  font-size: 1.05rem;
+}
+.pd-usage-summary { font-size: .85rem; opacity: .75; margin: 4px 0 8px; }
+.pd-usage-row {
+  display: flex; align-items: center; gap: 10px; padding: 6px 2px;
+  border-bottom: 1px solid rgba(0,0,0,.06); font-size: .9rem;
+}
+.pd-usage-mode { flex: 1; font-weight: 700; }
+.pd-usage-n { opacity: .7; }
+.pd-export-btn { width: 100%; margin-top: 10px; font-size: .85rem; }
+.pd-feedback-item {
+  background: rgba(0,0,0,.04); border-radius: 10px; padding: 8px 12px;
+  margin: 4px 0; font-size: .88rem;
+}

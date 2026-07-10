@@ -68,6 +68,8 @@ function initOfflineIndicator() {
    UNIVERSAL GAME RESULT
 ════════════════════════════════════════ */
 function showGameResult({ correct, total, xpGained, onContinue, wrongWords = [] }) {
+  logUsage({ ev: 'end', mode: state.lastGameMode, cat: state.currentCategory?.id || null,
+             ok: correct, total, xp: xpGained });
   const pct    = total ? correct / total : 0;
   const emoji  = pct >= 0.9 ? '🏆' : pct >= 0.7 ? '🎉' : pct >= 0.5 ? '🙌' : '🤔';
   const title  = pct >= 0.8 ? 'Super gemacht!' : pct >= 0.5 ? 'Gut gemacht!' : 'Weiter üben!';
@@ -899,6 +901,14 @@ function renderHome() {
    SCREEN: Category Detail
 ════════════════════════════════════════ */
 function openCategory(world) {
+  // Sperre durchsetzen — egal von wo geöffnet wird (Wort des Tages, Stadt, …)
+  const { locked } = getUnlockedCategories(state.profile || {});
+  const lockEntry = locked.find(l => l.catId === world.id);
+  if (lockEntry) {
+    const remaining = lockEntry.unlocksAt - masteredCountAll(state.profile || {});
+    alert(`Lerne noch ${Math.max(1, remaining)} Wörter um diese Kategorie freizuschalten! 🔒`);
+    return;
+  }
   state.currentCategory = world;
   const words = wordsForCategory(world.id);
   const mastered = words.filter(w => getWordStatus(w.id) === 'mastered').length;
@@ -1098,6 +1108,20 @@ async function saveSettings() {
   if (!AudioManager.enabled) AudioManager.stop();
 
   await saveProfile();
+}
+
+/* In die Zwischenablage kopieren, mit Fallback-Anzeige zum manuellen Kopieren */
+function _copyToClipboard(text, btn) {
+  const done = () => {
+    const old = btn.textContent;
+    btn.textContent = '✓ Kopiert!';
+    setTimeout(() => { btn.textContent = old; }, 1800);
+  };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => prompt('Zum Kopieren markieren:', text));
+  } else {
+    prompt('Zum Kopieren markieren:', text);
+  }
 }
 
 /* ════════════════════════════════════════
@@ -1308,6 +1332,62 @@ function _renderParentProfile(p) {
     badgeSection.appendChild(row);
   }
   container.appendChild(badgeSection);
+
+  // ── Nutzungs-Auswertung ──
+  const usage = getUsageLog(p.id).filter(e => e.ev === 'end');
+  const usageSection = document.createElement('div');
+  usageSection.className = 'pd-section';
+  usageSection.innerHTML = '<h3>📈 Nutzung</h3>';
+  if (!usage.length) {
+    usageSection.innerHTML += '<p class="pd-empty">Noch keine Daten — die App zeichnet ab jetzt lokal auf.</p>';
+  } else {
+    const byMode = {};
+    usage.forEach(e => {
+      const m = byMode[e.mode || '?'] || (byMode[e.mode || '?'] = { n: 0, ok: 0, total: 0 });
+      m.n++; m.ok += e.ok || 0; m.total += e.total || 0;
+    });
+    const last7 = usage.filter(e => (Date.now() - new Date(e.t)) < 7 * 86400000).length;
+    usageSection.innerHTML += `<p class="pd-usage-summary">${usage.length} Übungen insgesamt · ${last7} in den letzten 7 Tagen</p>`;
+    Object.entries(byMode).sort((a, b) => b[1].n - a[1].n).forEach(([mode, m]) => {
+      const acc = m.total ? Math.round(m.ok / m.total * 100) : 0;
+      usageSection.innerHTML += `
+        <div class="pd-usage-row">
+          <span class="pd-usage-mode">${mode}</span>
+          <span class="pd-usage-n">${m.n}×</span>
+          <span class="pd-usage-acc" style="color:${acc >= 75 ? 'var(--success, #2e9e4f)' : acc >= 50 ? '#d18432' : '#c9553d'}">${acc}% richtig</span>
+        </div>`;
+    });
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'secondary-btn pd-export-btn';
+    exportBtn.textContent = '📋 Nutzungsdaten kopieren (JSON)';
+    exportBtn.addEventListener('click', () => _copyToClipboard(JSON.stringify(getUsageLog(p.id)), exportBtn));
+    usageSection.appendChild(exportBtn);
+  }
+  container.appendChild(usageSection);
+
+  // ── Feedback der Kinder (geräteweit, aus dem Melden-Dialog) ──
+  let fb = [];
+  try { fb = JSON.parse(localStorage.getItem('cs_local_feedback') || '[]'); } catch (_) {}
+  const fbSection = document.createElement('div');
+  fbSection.className = 'pd-section';
+  fbSection.innerHTML = '<h3>💬 Gemeldete Ideen & Fehler</h3>';
+  if (!fb.length) {
+    fbSection.innerHTML += '<p class="pd-empty">Nichts gemeldet. Kinder können in jeder Übung unten rechts auf 💬 tippen.</p>';
+  } else {
+    fb.slice(-8).reverse().forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'pd-feedback-item';
+      item.textContent = `${e.type === 'idea' ? '💡' : '🐛'} ${e.message || e.category}` +
+        (e.context?.word_hr ? ` (${e.context.word_hr})` : '');
+      fbSection.appendChild(item);
+    });
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'secondary-btn pd-export-btn';
+    copyBtn.textContent = '📋 Alles kopieren — für IDEAS.md';
+    copyBtn.addEventListener('click', () => _copyToClipboard(JSON.stringify(fb, null, 2), copyBtn));
+    fbSection.appendChild(copyBtn);
+  }
+  container.appendChild(fbSection);
 
   // ── Profil verwalten (Eltern-Bereich ist bereits PIN-geschützt) ──
   const manageSection = document.createElement('div');

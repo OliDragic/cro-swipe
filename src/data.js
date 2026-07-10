@@ -10,8 +10,8 @@ const AGE_CONFIG = {
     tapChoices: 4,
     streakGoal: 7,
     difficultyTier: 1,
-    xpCorrect: 15,
-    xpWrong: 4,
+    xpCorrect: 8,
+    xpWrong: 2,
     showHintAfterMs: 4000,
   },
   8: {
@@ -20,8 +20,8 @@ const AGE_CONFIG = {
     tapChoices: 4,
     streakGoal: 5,
     difficultyTier: 1,
-    xpCorrect: 15,
-    xpWrong: 5,        // more XP for trying (8-year-olds need encouragement)
+    xpCorrect: 9,
+    xpWrong: 3,        // more XP for trying (8-year-olds need encouragement)
     showHintAfterMs: 3000,
   },
   11: {
@@ -30,8 +30,8 @@ const AGE_CONFIG = {
     tapChoices: 4,
     streakGoal: 14,
     difficultyTier: 2,
-    xpCorrect: 12,
-    xpWrong: 3,
+    xpCorrect: 7,
+    xpWrong: 1,
     showHintAfterMs: 6000,
   },
   12: {
@@ -40,8 +40,8 @@ const AGE_CONFIG = {
     tapChoices: 4,
     streakGoal: 14,
     difficultyTier: 2,
-    xpCorrect: 12,
-    xpWrong: 3,
+    xpCorrect: 7,
+    xpWrong: 1,
     showHintAfterMs: 8000,
   },
 };
@@ -158,8 +158,11 @@ async function loadVocabulary() {
 function wordsForProfile() {
   if (!state.profile) return state.vocabulary;
   const tier = ageConfig(state.profile.age).difficultyTier;
-  // Return words at or below current difficulty tier
-  return state.vocabulary.filter(w => w.level <= tier + 1);
+  // Nur Wörter aus freigeschalteten Kategorien — sonst sickern gesperrte
+  // Wörter über Wiederholung/Quick-Session/Sprint in die Übungen
+  const { unlocked } = getUnlockedCategories(state.profile);
+  return state.vocabulary.filter(w =>
+    w.level <= tier + 1 && unlocked.includes(w.category));
 }
 
 function wordAccuracy(wordId) {
@@ -552,8 +555,28 @@ async function saveProfile() {
   }
 }
 
+/* ─── Nutzungs-Log: lokale Ereignisliste pro Profil (max. 600 Einträge).
+   Grundlage für die Auswertung im Eltern-Bereich: Welche Übungen werden
+   gespielt, wie schwer sind sie (Trefferquote), wann wird geübt. */
+function logUsage(entry) {
+  if (!state.profile) return;
+  try {
+    const key = 'cs_usage_' + state.profile.id;
+    const log = JSON.parse(localStorage.getItem(key) || '[]');
+    log.push({ t: new Date().toISOString().slice(0, 16), ...entry });
+    while (log.length > 600) log.shift();
+    localStorage.setItem(key, JSON.stringify(log));
+  } catch (_) {}
+}
+
+function getUsageLog(profileId) {
+  try { return JSON.parse(localStorage.getItem('cs_usage_' + profileId) || '[]'); }
+  catch (_) { return []; }
+}
+
 function _trackGamePlayed(mode) {
   state.lastGameMode = mode;   // für "Nächste Übung" auf dem Ergebnis-Screen
+  logUsage({ ev: 'start', mode, cat: state.currentCategory?.id || null });
   try {
     const g = JSON.parse(localStorage.getItem('cs_games_played') || '{}');
     g[mode] = (g[mode] || 0) + 1;

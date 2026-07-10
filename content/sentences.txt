@@ -75,3 +75,6 @@ zoološki vrt
 svjetionik
 zidine
 dvorac
+Dobar dan!
+Bok!
+Dobro jutro!
