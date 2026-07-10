@@ -3247,6 +3247,11 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .city-spot { cursor: pointer; }
 .city-spot.built { animation: build-pop .45s cubic-bezier(.2,1.6,.4,1); }
 @keyframes build-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+/* Gebäude im Boden verankern: Kontaktschatten + weicher Schlagschatten */
+.spot-shadow { fill: rgba(35,60,25,.26); }
+.spot-grass { stroke: #55793f; stroke-width: 1.6; fill: none; stroke-linecap: round; }
+.city-spot.built { filter: drop-shadow(0 2px 1.5px rgba(40,60,30,.3)); }
+.plot-inner-shade { fill: none; stroke: rgba(90,60,30,.3); stroke-width: 3; stroke-linecap: round; }
 /* Fundamente: geräumte Erde mit geätztem Umriss (statt schwebender Kreise) */
 .plot-dirt { fill: url(#cg-dirt); }
 .plot-dirt-edge { fill: none; stroke: rgba(94,64,34,.5); stroke-width: 2; }
