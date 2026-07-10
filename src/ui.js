@@ -340,7 +340,7 @@ function renderFocusCard() {
         <div class="fc-review-count">${due.length}</div>
         <div class="fc-review-info">
           <strong>${due.length === 1 ? 'Wort' : 'Wörter'} zum Wiederholen</strong>
-          <span>Nicht vergessen — üb die heute!</span>
+          <span>Nicht vergessen — übe sie heute!</span>
         </div>
         <button class="fc-action-btn" id="fc-review-btn">Jetzt üben →</button>
       </div>`;

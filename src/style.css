@@ -3307,7 +3307,7 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 /* ═══ Homepage-Redesign: Hero-Reihe ═══ */
 .home-hero {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 10px 16px 2px;
   align-items: stretch;
@@ -3315,6 +3315,16 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .hero-tile {
   border-radius: 18px;
   min-height: 118px;
+}
+.home-hero .focus-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.home-hero .focus-card > * { flex: 1; }
+@media (max-width: 520px) {
+  .home-hero .fc-review { flex-wrap: wrap; padding: 12px; gap: 8px; }
+  .home-hero .fc-review .fc-action-btn { flex-basis: 100%; text-align: center; }
 }
 .city-tile-home {
   border: none; cursor: pointer;
@@ -3335,10 +3345,6 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
   font-size: 1.5rem; font-weight: 900; letter-spacing: .06em; color: #2e86c1;
   line-height: 1.4;
 }
-@media (max-width: 480px) {
-  .home-hero { grid-template-columns: 1fr 1fr; }
-}
-
 /* ═══ Stadt-Leben: Animationen ═══ */
 .castle-flag { animation: flag-wave 3s ease-in-out infinite; transform-origin: -31px -64px; }
 @keyframes flag-wave { 0%,100% { transform: skewY(0deg); } 50% { transform: skewY(6deg); } }
