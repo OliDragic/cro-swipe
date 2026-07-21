@@ -3244,7 +3244,8 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .city-scene-holder {
   overflow: hidden; margin: 0;
   /* Letterbox-Bänder (oben Himmel, unten Meer) laufen nahtlos weiter */
-  background: linear-gradient(180deg, #8ecdf0 0%, #8ecdf0 50%, #25628d 50%, #25628d 100%);
+  /* Randfarben des gemalten Panoramas (city-bg.jpg) */
+  background: linear-gradient(180deg, #82a8d3 0%, #82a8d3 50%, #07527c 50%, #07527c 100%);
 }
 #city-svg { display: block; width: 100%; height: auto; }
 
@@ -3309,7 +3310,7 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .cb-status { font-size: .9rem; opacity: .85; margin: 2px 0 6px; }
 
 /* Szene füllt den Bildschirm, Hinweis schwebt über dem Meer */
-#screen-city { background: #8ecdf0; }
+#screen-city { background: #82a8d3; }
 .city-scene-holder { height: calc(100vh - 60px); min-height: 460px; }
 #city-svg { width: 100%; height: 100%; }
 .city-hint {

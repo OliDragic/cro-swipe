@@ -33,35 +33,38 @@ const CITY_BUILDINGS = [
   { id: 'muzej',      hr: 'muzej',         de: 'Museum',       emoji: '🏛️', cost: 1100, req: { cat: 'Schule',    n: 15 } },
 ];
 
-/* ─── Feste Bauplätze in der Szene (SVG-Koordinaten, viewBox 800×560) ───
-   scale skaliert die Gebäude-Zeichnung am jeweiligen Platz. */
+/* ─── Feste Bauplätze, gemappt auf das gemalte Panorama (T-17) ───
+   Koordinaten sind lokal zur translate(0 190)-Gruppe (global = y+190).
+   Landmarken im Bild: Felsterrasse oben links (Burg/Stadtmauern),
+   Bergsee + Bach links (Brücke), offene Wiese Mitte (Dorf), Riva unten
+   links (Hafen/Leuchtturm), Strand rechts, Meer im Vordergrund. */
 const CITY_SPOTS = [
-  { spot: 'dvorac',     type: 'dvorac',     x: 236, y: 208, scale: 1.15 },
-  { spot: 'zidine',     type: 'zidine',     x: 355, y: 235, scale: 1.0  },
-  { spot: 'zoo',        type: 'zoo',        x: 85,  y: 325, scale: 0.95 },
-  { spot: 'kamp',       type: 'kamp',       x: 742, y: 302, scale: 1.0  },
-  { spot: 'park',       type: 'park',       x: 745, y: 390, scale: 1.0  },
-  { spot: 'most',       type: 'most',       x: 141, y: 408, scale: 1.0  },
-  { spot: 'pekara',     type: 'pekara',     x: 215, y: 348, scale: 0.95 },
-  { spot: 'kino',       type: 'kino',       x: 585, y: 358, scale: 0.95 },
-  { spot: 'muzej',      type: 'muzej',      x: 368, y: 338, scale: 1.0  },
-  { spot: 'crkva',      type: 'crkva',      x: 300, y: 300, scale: 1.1  },
-  { spot: 'kuca2',      type: 'kuca',       x: 420, y: 302, scale: 0.95 },
-  { spot: 'skola',      type: 'skola',      x: 520, y: 308, scale: 1.05 },
-  { spot: 'kuca3',      type: 'kuca',       x: 625, y: 315, scale: 0.9  },
-  { spot: 'stablo1',    type: 'stablo',     x: 180, y: 388, scale: 1.0  },
-  { spot: 'igraliste',  type: 'igraliste',  x: 680, y: 372, scale: 1.0  },
-  { spot: 'fontana',    type: 'fontana',    x: 452, y: 370, scale: 0.95 },
-  { spot: 'cvijece1',   type: 'cvijece',    x: 380, y: 385, scale: 0.9  },
-  { spot: 'konoba',     type: 'konoba',     x: 280, y: 392, scale: 1.0  },
-  { spot: 'trznica',    type: 'trznica',    x: 530, y: 392, scale: 1.0  },
-  { spot: 'kuca1',      type: 'kuca',       x: 605, y: 398, scale: 1.0  },
-  { spot: 'stablo2',    type: 'stablo',     x: 660, y: 340, scale: 0.8  },
-  { spot: 'cvijece2',   type: 'cvijece',    x: 345, y: 415, scale: 0.85 },
-  { spot: 'svjetionik', type: 'svjetionik', x: 52,  y: 400, scale: 1.1  },
-  { spot: 'luka',       type: 'luka',       x: 175, y: 452, scale: 1.0  },
-  { spot: 'brod',       type: 'brod',       x: 340, y: 505, scale: 1.0  },
-  { spot: 'plaza',      type: 'plaza',      x: 715, y: 448, scale: 1.0  },
+  { spot: 'dvorac',     type: 'dvorac',     x: 128, y: 77,  scale: 1.0  },
+  { spot: 'zidine',     type: 'zidine',     x: 238, y: 127, scale: 0.9  },
+  { spot: 'zoo',        type: 'zoo',        x: 92,  y: 250, scale: 0.9  },
+  { spot: 'kamp',       type: 'kamp',       x: 640, y: 245, scale: 0.9  },
+  { spot: 'crkva',      type: 'crkva',      x: 396, y: 240, scale: 0.95 },
+  { spot: 'kuca2',      type: 'kuca',       x: 487, y: 248, scale: 0.9  },
+  { spot: 'skola',      type: 'skola',      x: 562, y: 266, scale: 0.95 },
+  { spot: 'kuca3',      type: 'kuca',       x: 716, y: 278, scale: 0.9  },
+  { spot: 'stablo2',    type: 'stablo',     x: 752, y: 212, scale: 0.8  },
+  { spot: 'muzej',      type: 'muzej',      x: 448, y: 302, scale: 1.0  },
+  { spot: 'kino',       type: 'kino',       x: 606, y: 308, scale: 1.0  },
+  { spot: 'pekara',     type: 'pekara',     x: 330, y: 308, scale: 0.95 },
+  { spot: 'most',       type: 'most',       x: 196, y: 352, scale: 1.0  },
+  { spot: 'park',       type: 'park',       x: 702, y: 340, scale: 1.0  },
+  { spot: 'fontana',    type: 'fontana',    x: 498, y: 352, scale: 1.0  },
+  { spot: 'cvijece1',   type: 'cvijece',    x: 408, y: 370, scale: 0.9  },
+  { spot: 'stablo1',    type: 'stablo',     x: 274, y: 358, scale: 0.95 },
+  { spot: 'konoba',     type: 'konoba',     x: 357, y: 390, scale: 1.0  },
+  { spot: 'trznica',    type: 'trznica',    x: 549, y: 382, scale: 1.0  },
+  { spot: 'kuca1',      type: 'kuca',       x: 632, y: 390, scale: 1.0  },
+  { spot: 'igraliste',  type: 'igraliste',  x: 727, y: 396, scale: 1.0  },
+  { spot: 'cvijece2',   type: 'cvijece',    x: 447, y: 416, scale: 0.9  },
+  { spot: 'svjetionik', type: 'svjetionik', x: 42,  y: 428, scale: 1.05 },
+  { spot: 'luka',       type: 'luka',       x: 172, y: 438, scale: 1.0  },
+  { spot: 'brod',       type: 'brod',       x: 320, y: 512, scale: 1.0  },
+  { spot: 'plaza',      type: 'plaza',      x: 676, y: 470, scale: 1.0  },
 ];
 
 /* ─── Gebäude als kleine SVG-Illustrationen (dalmatinischer Stil) ───
@@ -315,248 +318,68 @@ function _cityLockReason(def) {
   return null;
 }
 
-/* ─── Szene ─── */
-/* Deko-Helfer: kleine wiederverwendbare Zeichnungen für die Landschaft */
-function _decoPine(x, y, s, dark) {
-  const c = dark ? '#3f6d3f' : '#4d7148';
-  return `<g transform="translate(${x} ${y}) scale(${s})">
-    <ellipse cx="0" cy="3" rx="6" ry="1.8" fill="rgba(35,60,25,.22)"/>
-    <path d="M0 0 L-7 0 L0 -13 L7 0 Z" fill="${c}"/>
-    <path d="M0 -6 L-5.5 -6 L0 -17 L5.5 -6 Z" fill="${c}"/>
-    <path d="M0 -13 L0 0 L5.5 0 Z" fill="#000" opacity=".12"/>
-    <rect x="-1.2" y="0" width="2.4" height="3.5" fill="#6b4a2e"/>
-  </g>`;
-}
-function _decoOak(x, y, s) {
-  return `<g transform="translate(${x} ${y}) scale(${s})">
-    <ellipse cx="1" cy="1.5" rx="8" ry="2.2" fill="rgba(35,60,25,.22)"/>
-    <rect x="-1.8" y="-6" width="3.6" height="7" fill="#7a5230"/>
-    <circle cx="-5" cy="-10" r="6.5" fill="#6f9e4e"/>
-    <circle cx="5" cy="-10" r="6" fill="#7fae57"/>
-    <circle cx="0" cy="-15" r="7" fill="#8fbb63"/>
-    <circle cx="-3" cy="-13" r="2" fill="#a9c97a" opacity=".8"/>
-    <path d="M6 -14 a6 6 0 0 1 3 8" fill="none" stroke="#5d8350" stroke-width="1.4" opacity=".7"/>
-  </g>`;
-}
+/* ─── Szene: gemaltes Panorama (T-17) + interaktive Vektor-Ebene ───
+   Hintergrund ist ein von Oliver generiertes Gemälde (city-bg.jpg, 1254px).
+   Links/rechts läuft es gespiegelt weiter, oben/unten in den exakten
+   Randfarben des Bilds — dadurch bleibt die Szene in jeder Orientierung
+   nahtlos. Gebäude, Schilder und Bewohner liegen als antippbare
+   SVG-Ebene darüber (nötig für Bauen, Audio und Ausbaustufen). */
 function _decoTuft(x, y, s) {
   return `<g transform="translate(${x} ${y}) scale(${s})" stroke="#6f9e4e" stroke-width="1.6" stroke-linecap="round" fill="none">
     <path d="M0 0 Q-2.5 -4 -4 -5"/><path d="M0 0 Q0 -5 .5 -7"/><path d="M0 0 Q2.5 -4 4 -5"/>
   </g>`;
 }
-function _decoFlowers(x, y) {
-  return `<g transform="translate(${x} ${y})">
-    <circle cx="0" cy="0" r="1.6" fill="#f2a3c0"/><circle cx="6" cy="-2" r="1.4" fill="#fff"/>
-    <circle cx="12" cy="1" r="1.5" fill="#ffd76e"/><circle cx="-6" cy="-1" r="1.3" fill="#fff"/>
-  </g>`;
-}
-function _decoSheep(x, y, s, flip) {
-  return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})" class="sheep">
-    <ellipse cx="0" cy="7" rx="8.5" ry="2" fill="rgba(35,60,25,.2)"/>
-    <line x1="-4" y1="3" x2="-4" y2="7" stroke="#4a4038" stroke-width="1.8" stroke-linecap="round"/>
-    <line x1="3" y1="3" x2="3" y2="7" stroke="#4a4038" stroke-width="1.8" stroke-linecap="round"/>
-    <ellipse cx="0" cy="0" rx="8" ry="5.5" fill="#f6f3ec"/>
-    <circle cx="-5" cy="-3.5" r="3" fill="#fdfcf9"/><circle cx="1" cy="-4.5" r="3.2" fill="#fdfcf9"/><circle cx="6" cy="-3" r="2.6" fill="#fdfcf9"/>
-    <circle cx="8.5" cy="-1.5" r="3" fill="#4a4038"/>
-    <ellipse cx="6.5" cy="-3.5" rx="1.8" ry="1" fill="#4a4038"/>
-    <circle cx="9.5" cy="-2.2" r=".55" fill="#fff"/>
-  </g>`;
-}
-function _wavePath(y) {
-  // Wellenlinie über die volle Panorama-Breite (Bögen alle 30px, wie das Original)
-  let d = `M-2000 ${y} Q-1985 ${y - 6} -1970 ${y}`;
-  for (let x = -1940; x <= 2800; x += 30) d += ` T${x} ${y}`;
-  return d;
-}
 function _citySceneSVG() {
   return `
   <svg id="city-svg" viewBox="0 0 800 780" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Moj Grad — Küstenstadt">
     <defs>
-      <!-- userSpaceOnUse: die Verläufe sitzen an festen Szenen-Koordinaten, damit
-           die seitlichen Panorama-Erweiterungen exakt dieselben Farben treffen -->
-      <linearGradient id="cg-sky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="720">
-        <stop offset="0" stop-color="#8ecdf0"/><stop offset=".45" stop-color="#bfe3f7"/><stop offset=".82" stop-color="#ffedc9"/><stop offset="1" stop-color="#ffe9c4"/>
-      </linearGradient>
-      <linearGradient id="cg-sea" gradientUnits="userSpaceOnUse" x1="0" y1="472" x2="0" y2="602">
-        <stop offset="0" stop-color="#4aa3d8"/><stop offset=".55" stop-color="#3487ba"/><stop offset="1" stop-color="#25628d"/>
-      </linearGradient>
-      <linearGradient id="cg-hill" gradientUnits="userSpaceOnUse" x1="0" y1="240" x2="0" y2="470">
-        <stop offset="0" stop-color="#a9c97a"/><stop offset="1" stop-color="#7fae57"/>
-      </linearGradient>
-      <linearGradient id="cg-rock" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="365">
-        <stop offset="0" stop-color="#98a1b4"/><stop offset="1" stop-color="#7d8699"/>
-      </linearGradient>
       <radialGradient id="cg-dirt" cx=".5" cy=".4" r=".75">
         <stop offset="0" stop-color="#d8b98d"/><stop offset="1" stop-color="#b98f5e"/>
       </radialGradient>
-      <linearGradient id="cg-mist" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#e2eff9" stop-opacity="0"/><stop offset="1" stop-color="#e2eff9" stop-opacity=".55"/>
+      <linearGradient id="cg-band-top" gradientUnits="userSpaceOnUse" x1="0" y1="-160" x2="0" y2="4">
+        <stop offset="0" stop-color="#82a8d3"/><stop offset="1" stop-color="#8cadd3"/>
       </linearGradient>
-      <linearGradient id="cg-foothill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#9cbd6e"/><stop offset="1" stop-color="#88b25e"/>
+      <linearGradient id="cg-band-bottom" gradientUnits="userSpaceOnUse" x1="0" y1="776" x2="0" y2="920">
+        <stop offset="0" stop-color="#0f608a"/><stop offset="1" stop-color="#07527c"/>
+      </linearGradient>
+      <linearGradient id="cg-haze-l" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-260" y2="0">
+        <stop offset="0" stop-color="#a8c2dd" stop-opacity="0"/><stop offset="1" stop-color="#a8c2dd" stop-opacity=".34"/>
+      </linearGradient>
+      <linearGradient id="cg-haze-r" gradientUnits="userSpaceOnUse" x1="800" y1="0" x2="1060" y2="0">
+        <stop offset="0" stop-color="#a8c2dd" stop-opacity="0"/><stop offset="1" stop-color="#a8c2dd" stop-opacity=".34"/>
       </linearGradient>
     </defs>
-    <!-- Das SVG-Element füllt den ganzen Bildschirm; Himmel/Land/Meer laufen bewusst
-         über die viewBox hinaus, damit es in jeder Orientierung nahtlos weitergeht -->
-
-    <!-- Himmel (läuft seitlich und nach oben unendlich weiter) -->
-    <rect x="-2000" y="-1000" width="4800" height="1720" fill="url(#cg-sky)"/>
-    <circle cx="690" cy="95" r="38" fill="#ffd76e"/>
-    <circle cx="690" cy="95" r="52" fill="#ffd76e" opacity=".25"/>
-    <circle cx="690" cy="95" r="66" fill="#ffd76e" opacity=".12"/>
-    <g class="cloud cloud-a">
-      <ellipse cx="0" cy="0" rx="42" ry="14" fill="#fff" opacity=".92"/><ellipse cx="28" cy="-8" rx="26" ry="11" fill="#fff" opacity=".92"/>
-      <ellipse cx="-26" cy="-5" rx="20" ry="9" fill="#fff" opacity=".85"/><ellipse cx="6" cy="-12" rx="18" ry="9" fill="#fff" opacity=".95"/>
-    </g>
-    <g class="cloud cloud-b">
-      <ellipse cx="0" cy="0" rx="34" ry="12" fill="#fff" opacity=".82"/><ellipse cx="-24" cy="-6" rx="20" ry="9" fill="#fff" opacity=".82"/>
-      <ellipse cx="18" cy="-7" rx="15" ry="8" fill="#fff" opacity=".78"/>
-    </g>
-    <ellipse cx="150" cy="150" rx="26" ry="8" fill="#fff" opacity=".5"/>
-    <ellipse cx="560" cy="110" rx="32" ry="9" fill="#fff" opacity=".45"/>
-    <g class="gull gull-a"><path d="M-9 0 Q-4.5 -6 0 -1 Q4.5 -6 9 0" fill="none" stroke="#4a5a6a" stroke-width="2" stroke-linecap="round"/></g>
-    <g class="gull gull-b"><path d="M-7 0 Q-3.5 -5 0 -1 Q3.5 -5 7 0" fill="none" stroke="#4a5a6a" stroke-width="1.6" stroke-linecap="round"/></g>
+    <!-- Randflächen: weiche Verläufe aus den Bild-Randfarben -->
+    <rect x="-2000" y="-1000" width="4800" height="1004" fill="url(#cg-band-top)"/>
+    <rect x="-2000" y="776" width="4800" height="1004" fill="url(#cg-band-bottom)"/>
+    <!-- Gespiegelte Fortsetzung links/rechts (leicht überlappt gegen Nahtlinien),
+         mit Dunst-Overlay: mildert die gespiegelte Sonne und gibt Tiefe -->
+    <g transform="scale(-1 1)"><image href="./city-bg.jpg" x="-1" y="0" width="802" height="780" preserveAspectRatio="none"/></g>
+    <g transform="translate(1600 0) scale(-1 1)"><image href="./city-bg.jpg" x="-1" y="0" width="802" height="780" preserveAspectRatio="none"/></g>
+    <rect x="-2000" y="-2" width="2000" height="784" fill="url(#cg-haze-l)"/>
+    <rect x="800" y="-2" width="2000" height="784" fill="url(#cg-haze-r)"/>
+    <!-- Hauptbild obendrauf -->
+    <image href="./city-bg.jpg" x="0" y="0" width="800" height="780" preserveAspectRatio="none"/>
+    <!-- Möwen ziehen über den gemalten Himmel -->
+    <g class="gull gull-a"><path d="M-9 0 Q-4.5 -6 0 -1 Q4.5 -6 9 0" fill="none" stroke="#3e4d5c" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="gull gull-b"><path d="M-7 0 Q-3.5 -5 0 -1 Q3.5 -5 7 0" fill="none" stroke="#3e4d5c" stroke-width="1.6" stroke-linecap="round"/></g>
 
     <g transform="translate(0 190)">
-    <!-- Ferne Bergkette (Dunst); Basis läuft hinter die Vorberge aus -->
-    <path d="M-20 345 L-20 300 L60 225 L160 275 L290 205 L430 278 L555 215 L690 272 L820 300 L820 345 Z" fill="#aab4c6" opacity=".65"/>
-
-    <!-- Berg (Biokovo) mit Licht- und Schattenflanken; Basis endet unsichtbar unter dem Grün -->
-    <path d="M-20 365 L-20 300 L150 120 L260 220 L360 90 L520 260 L640 170 L820 300 L820 365 Z" fill="url(#cg-rock)"/>
-    <path d="M150 120 L235 200 L150 235 Z" fill="#78829a" opacity=".7"/>
-    <path d="M150 120 L70 210 L150 235 Z" fill="#a2abbd" opacity=".65"/>
-    <path d="M360 90 L520 260 L365 260 Z" fill="#78829a" opacity=".6"/>
-    <path d="M360 90 L255 210 L360 240 Z" fill="#a2abbd" opacity=".5"/>
-    <path d="M640 170 L745 265 L640 255 Z" fill="#78829a" opacity=".6"/>
-    <path d="M-20 340 L-20 300 L120 190 L300 340 Z" fill="#7d8699" opacity=".6"/>
-    <!-- Bergfuß läuft seitlich als Felsband weiter (verschwindet hinter dem Grün) -->
-    <rect x="-2000" y="300" width="1980" height="65" fill="url(#cg-rock)"/>
-    <rect x="820" y="300" width="1980" height="65" fill="url(#cg-rock)"/>
-    <!-- Schneekappen mit gezacktem Rand -->
-    <path d="M323 132 L360 90 L396 130 L382 124 L370 138 L357 127 L343 136 L331 126 Z" fill="#f4f7fa"/>
-    <path d="M127 146 L150 120 L172 143 L161 139 L150 150 L138 141 Z" fill="#eef2f6" opacity=".9"/>
-    <path d="M618 195 L640 170 L662 194 L651 189 L640 200 L628 190 Z" fill="#eef2f6" opacity=".85"/>
-    <!-- Felslinien -->
-    <g stroke="#6f7990" stroke-width="1.6" opacity=".45" fill="none" stroke-linecap="round">
-      <path d="M330 150 q10 22 4 40"/><path d="M385 140 q-4 26 6 44"/><path d="M170 165 q8 20 2 38"/>
-      <path d="M600 215 q8 16 4 30"/><path d="M470 215 q6 14 2 28"/>
-    </g>
-    <!-- Talnebel weicht den Bergfuß auf -->
-    <rect x="-2000" y="242" width="4800" height="66" fill="url(#cg-mist)"/>
-    <!-- Waldsaum: Kiefernreihe hinter den Vorbergen, nur die Wipfel schauen heraus -->
-    ${[8, 52, 96, 148, 205, 258, 312, 415, 468, 522, 575, 628, 682, 735, 782]
-      .map((x, i) => _decoPine(x, 302, 1.05 + (i % 3) * 0.22, i % 2 === 0)).join('')}
-    <!-- Vorberge: sanfter Übergang vom Fels ins Grün -->
-    <path d="M-20 340 Q60 296 150 318 Q240 336 330 310 Q420 288 505 312 Q590 332 670 306 Q745 288 820 316 L820 430 L-20 430 Z" fill="url(#cg-foothill)"/>
-    <path d="M330 310 Q420 288 505 312 Q470 320 420 318 Q370 316 330 310 Z" fill="#8fb463" opacity=".7"/>
-    <path d="M670 306 Q745 288 820 316 L820 326 Q740 300 670 306 Z" fill="#8fb463" opacity=".6"/>
-
-    <!-- Hügel + Dorf-Hang (läuft seitlich flach weiter) -->
-    <path d="M-10 320 Q200 240 420 290 Q620 330 810 280 L810 470 L-10 470 Z" fill="url(#cg-hill)"/>
-    <rect x="-2000" y="320" width="1991" height="150" fill="url(#cg-hill)"/>
-    <rect x="809" y="280" width="1991" height="190" fill="url(#cg-hill)"/>
-    <!-- Wiesenflecken für Tiefe -->
-    <ellipse cx="510" cy="300" rx="95" ry="22" fill="#b9d68d" opacity=".5"/>
-    <ellipse cx="200" cy="330" rx="80" ry="18" fill="#b9d68d" opacity=".4"/>
-    <ellipse cx="660" cy="345" rx="70" ry="16" fill="#98c26b" opacity=".5"/>
-    <path d="M-10 380 Q250 330 500 372 Q680 400 810 370 L810 480 L-10 480 Z" fill="#8fbb63"/>
-    <rect x="-2000" y="380" width="1991" height="100" fill="#8fbb63"/>
-    <rect x="809" y="370" width="1991" height="110" fill="#8fbb63"/>
-    <ellipse cx="430" cy="420" rx="110" ry="20" fill="#9cc571" opacity=".55"/>
-    <!-- Bäume: Zypressen, Eichen, Kiefern natürlich verteilt -->
-    <g fill="#3f6d3f">
-      <path d="M95 268 Q84 250 88 232 Q92 214 95 208 Q98 214 102 232 Q106 250 95 268 Z"/>
-      <rect x="93" y="266" width="4" height="8" fill="#6b4a2e"/>
-      <path d="M470 262 Q460 246 464 230 Q467 216 470 210 Q473 216 476 230 Q480 246 470 262 Z"/>
-      <rect x="468" y="260" width="4" height="7" fill="#6b4a2e"/>
-      <path d="M737 330 Q728 314 731 298 Q734 286 737 280 Q740 286 743 298 Q746 314 737 330 Z"/>
-      <rect x="735" y="328" width="4" height="7" fill="#6b4a2e"/>
-    </g>
-    ${_decoOak(48, 330, 1)}${_decoOak(320, 268, 0.85)}${_decoOak(555, 282, 0.9)}${_decoOak(775, 355, 0.95)}
-    ${_decoPine(140, 300, 1, true)}${_decoPine(618, 300, 0.9, false)}${_decoPine(30, 430, 1.1, true)}${_decoPine(770, 440, 1, false)}
-    <!-- Grasbüschel + Blumen -->
-    ${_decoTuft(120, 355, 1)}${_decoTuft(250, 315, 1.1)}${_decoTuft(430, 300, 1)}${_decoTuft(580, 330, 1.1)}
-    ${_decoTuft(680, 415, 1)}${_decoTuft(320, 440, 1.1)}${_decoTuft(495, 435, 1)}${_decoTuft(70, 375, 1)}
-    ${_decoFlowers(405, 415)}${_decoFlowers(240, 372)}${_decoFlowers(560, 375)}${_decoFlowers(700, 340)}${_decoFlowers(160, 430)}
-    <!-- Schafe auf der Weide -->
-    ${_decoSheep(508, 264, 0.9, false)}${_decoSheep(548, 254, 1, true)}${_decoSheep(586, 268, 0.8, false)}
-
-    <!-- Bach: Sandufer, Wasser, Strömung, Kiesel -->
-    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
-          stroke="#d9cba6" stroke-width="19" fill="none" opacity=".85" stroke-linecap="round"/>
-    <ellipse cx="186" cy="252" rx="16" ry="6" fill="#4aa3d8"/>
-    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
-          stroke="#4aa3d8" stroke-width="13" fill="none" opacity=".95" stroke-linecap="round"/>
-    <path d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
-          stroke="#8fd0f2" stroke-width="5" fill="none" opacity=".85" stroke-linecap="round"/>
-    <path class="river-flow" d="M186 252 C 158 290, 176 330, 150 365 S 122 430, 130 470"
-          stroke="#e8f6ff" stroke-width="2" fill="none" opacity=".8" stroke-linecap="round" stroke-dasharray="5 17"/>
-    <g fill="#b8b0a4">
-      <ellipse cx="172" cy="278" rx="3" ry="2"/><ellipse cx="163" cy="308" rx="2.5" ry="1.8" fill="#cfc8bb"/>
-      <ellipse cx="176" cy="338" rx="3" ry="2" fill="#9b948a"/><ellipse cx="140" cy="382" rx="2.8" ry="2"/>
-      <ellipse cx="119" cy="420" rx="3" ry="2" fill="#cfc8bb"/><ellipse cx="141" cy="448" rx="3.2" ry="2.2" fill="#9b948a"/>
-    </g>
-
-    <!-- Kleine Inseln am Horizont -->
-    <ellipse cx="655" cy="452" rx="40" ry="7" fill="#7d8699" opacity=".55"/>
-    <path d="M630 452 Q655 436 682 452 Z" fill="#8b93a7" opacity=".65"/>
-    <ellipse cx="540" cy="455" rx="22" ry="4" fill="#7d8699" opacity=".4"/>
-    <path d="M528 455 Q540 447 553 455 Z" fill="#8b93a7" opacity=".5"/>
-    <path d="M540 447 L540 438 L546 445 Z" fill="#f6f0e0" opacity=".7"/>
-    <!-- Weg zum Dorf mit Pflastersteinen -->
-    <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#e8dcbf" stroke-width="10" stroke-linecap="round" opacity=".75"/>
-    <path d="M400 470 Q420 400 380 350 Q350 310 300 300" fill="none" stroke="#d5c49e" stroke-width="6" stroke-linecap="round" opacity=".6" stroke-dasharray="7 9"/>
-
-    <!-- Riva (Uferpromenade) mit Steinfugen, läuft seitlich weiter -->
-    <rect x="-2000" y="452" width="4800" height="18" fill="#d8cfc0"/>
-    <rect x="-2000" y="452" width="4800" height="2" fill="#efe7d8"/>
-    <g stroke="#c4b9a5" stroke-width="1" opacity=".8">
-      ${Array.from({ length: 24 }, (_, i) => -520 + i * 80).map(x => `<line x1="${x}" y1="454" x2="${x}" y2="468"/>`).join('')}
-    </g>
-    <rect x="-2000" y="468" width="4800" height="6" fill="#b8ac94"/>
     <!-- Angler auf der Riva -->
-    <g class="fisher" transform="translate(108 452)">
+    <g class="fisher" transform="translate(525 452)">
       <circle cx="0" cy="-16" r="4.5" fill="#f2c9a0"/>
       <path d="M-4.5 -18 Q0 -24 4.5 -18 L5 -16 L-5 -16 Z" fill="#c9553d"/>
       <rect x="-4" y="-12" width="8" height="9" rx="2.5" fill="#4a7fb5"/>
       <path d="M-4 -3 L-8 4 M4 -3 L4 4" stroke="#3d4a5a" stroke-width="3" stroke-linecap="round"/>
-      <line x1="-3" y1="-9" x2="-26" y2="-24" stroke="#7a5230" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="-26" y1="-24" x2="-30" y2="22" stroke="#dfe9f2" stroke-width=".9"/>
-      <ellipse cx="-30" cy="24" rx="5" ry="1.6" fill="none" stroke="#bfe6ff" stroke-width="1" opacity=".8"/>
-    </g>
-
-    <!-- Meer im Vordergrund (läuft seitlich und nach unten weiter) -->
-    <rect x="-2000" y="472" width="4800" height="1130" fill="url(#cg-sea)"/>
-    <!-- Flachwasser an der Kaimauer (Diorama-Tiefe) -->
-    <rect x="-2000" y="472" width="4800" height="9" fill="#71c1e4" opacity=".6"/>
-    <rect x="-2000" y="481" width="4800" height="5" fill="#5db1d8" opacity=".4"/>
-    <!-- Sonnenglitzern auf dem Wasser -->
-    <g class="sea-glints" fill="#dff2ff">
-      <ellipse cx="628" cy="500" rx="34" ry="2.2" opacity=".4"/><ellipse cx="672" cy="514" rx="22" ry="1.8" opacity=".3"/>
-      <ellipse cx="590" cy="530" rx="26" ry="2" opacity=".28"/><ellipse cx="330" cy="545" rx="30" ry="2" opacity=".2"/>
-      <ellipse cx="150" cy="510" rx="24" ry="1.8" opacity=".22"/>
-    </g>
-    <!-- Fischschwarm unter Wasser -->
-    <g fill="#1f5680" opacity=".7">
-      <path d="M232 556 Q238 551 244 556 Q240 559 236 558 Z"/><path d="M252 563 Q258 558 264 563 Q260 566 256 565 Z"/>
-      <path d="M243 572 Q248 568 253 572 Q249 574 246 573 Z"/>
-    </g>
-    <!-- Felsen am Meeresgrund -->
-    <ellipse cx="60" cy="596" rx="42" ry="9" fill="#1c4a6e" opacity=".55"/>
-    <ellipse cx="748" cy="592" rx="50" ry="10" fill="#1c4a6e" opacity=".5"/>
-    <g class="waves" stroke="#bfe6ff" stroke-width="2.5" fill="none" opacity=".65" stroke-linecap="round">
-      <path d="${_wavePath(494)}"/>
-    </g>
-    <g class="waves waves-slow" stroke="#a5d8f2" stroke-width="2" fill="none" opacity=".45" stroke-linecap="round">
-      <path d="${_wavePath(526)}"/>
-    </g>
-    <g class="waves" stroke="#8fc5e8" stroke-width="2" fill="none" opacity=".35" stroke-linecap="round">
-      <path d="${_wavePath(566)}"/>
+      <line x1="3" y1="-9" x2="26" y2="-24" stroke="#7a5230" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="26" y1="-24" x2="30" y2="26" stroke="#eef4f9" stroke-width=".9"/>
+      <ellipse cx="30" cy="28" rx="5" ry="1.6" fill="none" stroke="#d6ecfa" stroke-width="1" opacity=".8"/>
     </g>
     <!-- Springender Fisch -->
-    <g class="fish" transform="translate(580 520)">
-      <path d="M-8 0 Q0 -9 8 0 Q3 3 0 2 Q-3 3 -8 0 Z" fill="#7ea8c4"/>
-      <path d="M8 0 L14 -5 L14 5 Z" fill="#6b94b0"/>
-      <circle cx="-4" cy="-2" r="1.2" fill="#2e3547"/>
+    <g class="fish" transform="translate(150 555)">
+      <path d="M-8 0 Q0 -9 8 0 Q3 3 0 2 Q-3 3 -8 0 Z" fill="#9fc4dc"/>
+      <path d="M8 0 L14 -5 L14 5 Z" fill="#8db4cc"/>
+      <circle cx="-4" cy="-2" r="1.2" fill="#22303e"/>
     </g>
 
     <!-- Bauplätze -->
@@ -692,7 +515,8 @@ function renderCity() {
   // Auto-Dekor: die Stadt wird von selbst lebendiger, je mehr gebaut ist
   const builtCount = city.buildings.length;
   if (builtCount >= 6) {
-    [250, 450, 650].forEach(x => {
+    // Lampen stehen auf der gemalten Riva (links unten)
+    [110, 300, 460].forEach(x => {
       const lamp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       lamp.setAttribute('transform', `translate(${x} 452)`);
       lamp.innerHTML = `
