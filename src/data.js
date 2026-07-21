@@ -174,7 +174,10 @@ function wordAccuracy(wordId) {
 function getWordStatus(wordId) {
   const acc = wordAccuracy(wordId);
   if (acc < 0) return 'new';
-  if (acc >= 0.85) return 'mastered';
+  // Gemeistert erst ab 3 Begegnungen — ein Glückstreffer (25 % Ratechance
+  // im 4-Möglichkeiten-Quiz) soll ein Wort nicht „meistern"
+  const enc = (state.profile?.word_progress || {})[wordId]?.encounters || 0;
+  if (acc >= 0.85 && enc >= 3) return 'mastered';
   if (acc >= 0.60) return 'learning';
   return 'struggling';
 }
@@ -344,7 +347,7 @@ const BADGES = [
 /* Helper: count all mastered words across a profile object */
 function masteredCountAll(p) {
   const wp = p.word_progress || {};
-  return Object.values(wp).filter(w => w.encounters > 0 && w.correct / w.encounters >= 0.85).length;
+  return Object.values(wp).filter(w => w.encounters >= 3 && w.correct / w.encounters >= 0.85).length;
 }
 
 /* ─── Phase-based progression ─── */
@@ -362,7 +365,9 @@ function phaseUnlockFactor(profile) {
 }
 
 function getUnlockedCategories(profile) {
-  const count = masteredCountAll(profile);
+  // High-Water-Stand: einmal Freigeschaltetes bleibt offen, auch wenn das
+  // (seit 21.07. strengere) Gemeistert-Kriterium die aktuelle Zahl senkt
+  const count = Math.max(masteredCountAll(profile), profile?.mastered_high || 0);
   const factor = phaseUnlockFactor(profile);
   const unlocked = [], locked = [];
   PHASES.forEach(ph => {
@@ -415,10 +420,12 @@ function incrementDailyGoal() {
 function getDueReviewWords(maxCount = 20) {
   const now = Date.now();
   const wp = (state.profile?.word_progress) || {};
-  const due = wordsForProfile().filter(w => {
+  // Erst mischen, dann stabil nach Priorität sortieren: so entscheidet bei
+  // Gleichstand der Zufall statt der CSV-Reihenfolge (T-14)
+  const due = shuffle(wordsForProfile().filter(w => {
     const p = wp[w.id];
     return p && p.encounters > 0 && (p.next_review || 0) <= now;
-  }).sort((a, b) => {
+  })).sort((a, b) => {
     const priority = { struggling: 0, learning: 1, mastered: 2 };
     return (priority[getWordStatus(a.id)] || 1) - (priority[getWordStatus(b.id)] || 1);
   }).slice(0, maxCount);
@@ -488,34 +495,55 @@ function recordWord(wordId, correct) {
     next_review: Date.now() + getSRSInterval(newCorrect, newEncounters),
   };
   p.word_progress = wp;
+  // High-Water für Freischaltungen (schützt vor Rückschritt bei Kriterien-Änderung)
+  p.mastered_high = Math.max(p.mastered_high || 0, masteredCountAll(p));
   // Track recent words (last 10)
   p.recent_words = [wordId, ...(p.recent_words || []).filter(id => id !== wordId)].slice(0, 10);
   // Increment daily goal (every encountered word counts)
   incrementDailyGoal();
 }
 
-/* ─── Adaptive word selection ─── */
+/* ─── Adaptive word selection ───
+   Quoten statt reinem Ranking (T-14): Vorher konnten fällige „schwierige"
+   Wörter alle Plätze belegen und neue Wörter verhungerten in einer Schlaufe;
+   bei Gleichstand entschied zudem die CSV-Reihenfolge. Jetzt gilt:
+   - max. ~1/3 der Session fällige Schwierige,
+   - garantiert 2 neue Wörter, solange es ungesehene gibt,
+   - Rest: fällige Gelernte, dann weitere Neue/Schwierige, dann Auffrischung,
+   - innerhalb jedes Topfs Zufall; zuletzt gesehene Wörter ans Topf-Ende. */
 function selectSessionWords(catId, count) {
   const pool = catId ? wordsForCategory(catId) : wordsForProfile();
-
-  // SRS-aware sort: overdue struggling > new > overdue learning > not-due
   const now = Date.now();
   const wp = (state.profile && state.profile.word_progress) || {};
-  const sorted = [...pool].sort((a, b) => {
-    const sa = getWordStatus(a.id), sb = getWordStatus(b.id);
-    const dueA = !wp[a.id] || (wp[a.id].next_review || 0) <= now;
-    const dueB = !wp[b.id] || (wp[b.id].next_review || 0) <= now;
-    const rankA = dueA ? (sa === 'struggling' ? 0 : sa === 'new' ? 1 : 2) : 3;
-    const rankB = dueB ? (sb === 'struggling' ? 0 : sb === 'new' ? 1 : 2) : 3;
-    return rankA - rankB;
+  const recent = new Set((state.profile && state.profile.recent_words) || []);
+
+  const isDue = w => !wp[w.id] || (wp[w.id].next_review || 0) <= now;
+  const fresh = [], struggling = [], dueLearn = [], rest = [];
+  pool.forEach(w => {
+    const s = getWordStatus(w.id);
+    if (s === 'new') fresh.push(w);
+    else if (s === 'struggling' && isDue(w)) struggling.push(w);
+    else if (isDue(w)) dueLearn.push(w);
+    else rest.push(w);
   });
 
-  // Take requested count; if not enough, pad with mastered words
-  const result = sorted.slice(0, count);
-  if (result.length < count && sorted.length > count) {
-    result.push(...sorted.slice(count, count + (count - result.length)));
-  }
-  return shuffle(result.length >= 2 ? result : pool.slice(0, Math.max(2, count)));
+  // Zufall im Topf, zuletzt Gesehenes nach hinten
+  const order = arr => {
+    const a = shuffle(arr);
+    return [...a.filter(w => !recent.has(w.id)), ...a.filter(w => recent.has(w.id))];
+  };
+  const oS = order(struggling), oN = order(fresh), oL = order(dueLearn), oR = order(rest);
+
+  const pick = [];
+  const take = (arr, n) => { if (n > 0) pick.push(...arr.splice(0, n)); };
+  take(oS, Math.min(3, Math.max(1, Math.floor(count / 3))));  // Schwierige gedeckelt
+  take(oN, Math.min(2, count - pick.length));                  // Neue GARANTIERT
+  take(oL, count - pick.length);                               // fällige Gelernte
+  take(oN, count - pick.length);                               // mehr Neue, wenn Platz
+  take(oS, count - pick.length);                               // restliche Schwierige
+  take(oR, count - pick.length);                               // Auffrischung
+
+  return shuffle(pick.length >= 2 ? pick : pool.slice(0, Math.max(2, count)));
 }
 
 function shuffle(arr) {
@@ -544,6 +572,7 @@ async function saveProfile() {
         daily_goal: state.profile.daily_goal || { date: null, count: 0 },
         settings: state.profile.settings,
         city: state.profile.city || { buildings: [], spent: 0 },
+        mastered_high: state.profile.mastered_high || 0,
       }),
     });
     state.profile = data.profile;

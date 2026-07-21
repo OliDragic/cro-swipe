@@ -265,20 +265,15 @@
       <div class="cat-mini-bar-outer">
         <div class="cat-mini-bar-inner" id="cat-mini-bar"></div>
       </div>
+      <div class="cat-new-info" id="cat-new-info"></div>
     </div>
     <div class="game-buttons" id="game-buttons">
-      <button class="game-btn" data-game="swipe">
-        <span class="game-btn-icon">🃏</span>
+      <!-- T-16: Ein Hauptknopf — die App wählt die passende Übungsstufe -->
+      <button class="game-btn game-btn-primary" data-game="smart">
+        <span class="game-btn-icon">🎯</span>
         <div class="game-btn-info">
-          <strong>Swipe-Karten</strong>
-          <span>Links = noch lernen · Rechts = ich kenn's!</span>
-        </div>
-      </button>
-      <button class="game-btn" data-game="tap">
-        <span class="game-btn-icon">👆</span>
-        <div class="game-btn-info">
-          <strong>4 Möglichkeiten</strong>
-          <span>Wähle die richtige Übersetzung</span>
+          <strong>Üben</strong>
+          <span>Die App wählt die passende Übung für dich</span>
         </div>
       </button>
       <button class="game-btn" data-game="match">
@@ -288,40 +283,13 @@
           <span>Bild und Wort zusammenbringen</span>
         </div>
       </button>
-      <button class="game-btn" data-game="rtap">
-        <span class="game-btn-icon">🔄</span>
+      <button class="game-btn game-btn-sprint" data-game="sprint">
+        <span class="game-btn-icon">⚡</span>
         <div class="game-btn-info">
-          <strong>Deutsch → Kroatisch</strong>
-          <span>Sieh das deutsche Wort — wie heißt es auf Kroatisch?</span>
+          <strong>60-Sekunden Sprint</strong>
+          <span>So viele Wörter wie möglich in 60 Sek!</span>
         </div>
-      </button>
-      <button class="game-btn" data-game="satz">
-        <span class="game-btn-icon">📝</span>
-        <div class="game-btn-info">
-          <strong>Sätze bauen</strong>
-          <span>Vervollständige den kroatischen Satz</span>
-        </div>
-      </button>
-      <button class="game-btn" data-game="listen">
-        <span class="game-btn-icon">👂</span>
-        <div class="game-btn-info">
-          <strong>Hör-Quiz</strong>
-          <span>Hör das Wort — was bedeutet es?</span>
-        </div>
-      </button>
-      <button class="game-btn" id="btn-speak-game" data-game="speak">
-        <span class="game-btn-icon">🔤</span>
-        <div class="game-btn-info">
-          <strong>Hör &amp; Erkenn!</strong>
-          <span>Hör das Wort — welche Schreibweise ist richtig?</span>
-        </div>
-      </button>
-      <button class="game-btn" data-game="puzzle">
-        <span class="game-btn-icon">🧩</span>
-        <div class="game-btn-info">
-          <strong>Satz-Puzzle</strong>
-          <span>Bring die Wörter in die richtige Reihenfolge</span>
-        </div>
+        <span class="sprint-highscore-badge" id="sprint-cat-hs"></span>
       </button>
       <button class="game-btn" id="btn-biti-game" data-game="biti" style="display:none">
         <span class="game-btn-icon">📘</span>
@@ -337,28 +305,72 @@
           <span>Welche Endung passt? (Akkusativ &amp; Lokativ)</span>
         </div>
       </button>
-      <button class="game-btn game-btn-pronounce" data-game="pronounce">
-        <span class="game-btn-icon">🎤</span>
-        <div class="game-btn-info">
-          <strong>Aussprache-Training</strong>
-          <span>Sprich das kroatische Wort nach</span>
-        </div>
-      </button>
-      <button class="game-btn game-btn-sprint" data-game="sprint">
-        <span class="game-btn-icon">⚡</span>
-        <div class="game-btn-info">
-          <strong>60-Sekunden Sprint</strong>
-          <span>So viele Wörter wie möglich in 60 Sek!</span>
-        </div>
-        <span class="sprint-highscore-badge" id="sprint-cat-hs"></span>
-      </button>
-      <button class="game-btn" id="btn-chars-game" data-game="chars" style="display:none" aria-hidden="true">
-        <span class="game-btn-icon">🔣</span>
-        <div class="game-btn-info">
-          <strong>Zeichen-Picker</strong>
-          <span>Sonderzeichen: č š ž ć đ</span>
-        </div>
-      </button>
+      <details class="more-games" id="more-games">
+        <summary>Mehr Übungen …</summary>
+        <button class="game-btn" data-game="swipe">
+          <span class="game-btn-icon">🃏</span>
+          <div class="game-btn-info">
+            <strong>Swipe-Karten</strong>
+            <span>Links = noch lernen · Rechts = ich kenn's!</span>
+          </div>
+        </button>
+        <button class="game-btn" data-game="tap">
+          <span class="game-btn-icon">👆</span>
+          <div class="game-btn-info">
+            <strong>4 Möglichkeiten</strong>
+            <span>Wähle die richtige Übersetzung</span>
+          </div>
+        </button>
+        <button class="game-btn" data-game="rtap">
+          <span class="game-btn-icon">🔄</span>
+          <div class="game-btn-info">
+            <strong>Deutsch → Kroatisch</strong>
+            <span>Sieh das deutsche Wort — wie heißt es auf Kroatisch?</span>
+          </div>
+        </button>
+        <button class="game-btn" data-game="satz">
+          <span class="game-btn-icon">📝</span>
+          <div class="game-btn-info">
+            <strong>Sätze bauen</strong>
+            <span>Vervollständige den kroatischen Satz</span>
+          </div>
+        </button>
+        <button class="game-btn" data-game="listen">
+          <span class="game-btn-icon">👂</span>
+          <div class="game-btn-info">
+            <strong>Hör-Quiz</strong>
+            <span>Hör das Wort — was bedeutet es?</span>
+          </div>
+        </button>
+        <button class="game-btn" id="btn-speak-game" data-game="speak">
+          <span class="game-btn-icon">🔤</span>
+          <div class="game-btn-info">
+            <strong>Hör &amp; Erkenn!</strong>
+            <span>Hör das Wort — welche Schreibweise ist richtig?</span>
+          </div>
+        </button>
+        <button class="game-btn" data-game="puzzle">
+          <span class="game-btn-icon">🧩</span>
+          <div class="game-btn-info">
+            <strong>Satz-Puzzle</strong>
+            <span>Bring die Wörter in die richtige Reihenfolge</span>
+          </div>
+        </button>
+        <button class="game-btn game-btn-pronounce" data-game="pronounce">
+          <span class="game-btn-icon">🎤</span>
+          <div class="game-btn-info">
+            <strong>Aussprache-Training</strong>
+            <span>Sprich das kroatische Wort nach</span>
+          </div>
+        </button>
+        <button class="game-btn" id="btn-chars-game" data-game="chars" style="display:none" aria-hidden="true">
+          <span class="game-btn-icon">🔣</span>
+          <div class="game-btn-info">
+            <strong>Zeichen-Picker</strong>
+            <span>Sonderzeichen: č š ž ć đ</span>
+          </div>
+        </button>
+      </details>
     </div>
   </div>
 
@@ -475,6 +487,7 @@
           <div class="result-wrong-list" id="result-wrong-list"></div>
         </div>
         <button class="primary-btn" id="result-review" style="display:none">🔁 Falsche Wörter üben</button>
+        <button class="primary-btn" id="result-check" style="display:none">🔍 Kurz-Check: Kennst du sie wirklich?</button>
         <button class="primary-btn" id="result-next">▶️ Nächste Übung</button>
         <button class="secondary-btn" id="result-continue">🔄 Nochmal</button>
         <button class="secondary-btn" id="result-home">Zurück zur Übersicht</button>

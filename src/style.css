@@ -501,6 +501,27 @@ button, input, select {
   transition: transform .15s, box-shadow .15s;
   min-height: 76px;
 }
+/* T-16: Hauptknopf „Üben" + Aufklapper für die übrigen Modi */
+.game-btn-primary {
+  background: linear-gradient(135deg, var(--primary), #e04e28);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255,107,53,.4);
+}
+.game-btn-primary .game-btn-info span { color: rgba(255,255,255,.85); }
+.game-btn-primary .game-btn-icon { font-size: 2rem; }
+.more-games { margin-top: 4px; }
+.more-games summary {
+  cursor: pointer; list-style: none; text-align: center;
+  font-size: .88rem; font-weight: 700; color: var(--text-mid);
+  padding: 10px; border-radius: var(--radius);
+  -webkit-tap-highlight-color: transparent;
+}
+.more-games summary::-webkit-details-marker { display: none; }
+.more-games summary::after { content: ' ▾'; }
+.more-games[open] summary::after { content: ' ▴'; }
+.more-games .game-btn { width: 100%; margin-top: 10px; }
+/* das eigene display:flex der Buttons würde das UA-Verstecken überstimmen */
+.more-games:not([open]) > .game-btn { display: none; }
 .game-btn:active {
   transform: scale(.98);
   box-shadow: var(--shadow-md);
@@ -608,6 +629,21 @@ button, input, select {
   line-height: 1;
   margin-bottom: 16px;
 }
+/* T-15: Bild/Zahl erst nach dem Aufdecken — vorher neutrale Rückseite,
+   damit die Selbsteinschätzung das Wort misst, nicht das Bild */
+.swipe-card-mystery {
+  font-size: clamp(3.5rem, 15vw, 5rem);
+  line-height: 1;
+  margin-bottom: 16px;
+  opacity: .45;
+  filter: grayscale(.6);
+}
+.swipe-card .swipe-card-visual { display: none; }
+.swipe-card.revealed .swipe-card-visual { display: block; animation: visual-pop .3s cubic-bezier(.2,1.6,.4,1); }
+.swipe-card.revealed .swipe-card-mystery { display: none; }
+@keyframes visual-pop { from { scale: .5; opacity: 0; } to { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .swipe-card.revealed .swipe-card-visual { animation: none; } }
+.cat-new-info { font-size: .82rem; font-weight: 700; color: var(--text-mid); margin-top: 6px; }
 .swipe-card-numeral {
   font-size: clamp(4rem, 18vw, 6.5rem);
   font-weight: 900;

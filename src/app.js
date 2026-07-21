@@ -100,7 +100,8 @@ function wireEvents() {
     AudioManager.unlock();   // iOS audio gate: unlock on first user gesture
     const game = btn.dataset.game;
     const catId = state.currentCategory?.id;
-    if (game === 'swipe') startSwipeGame(catId);
+    if (game === 'smart') smartPractice(catId);
+    else if (game === 'swipe') startSwipeGame(catId);
     else if (game === 'tap') startTapGame(catId);
     else if (game === 'rtap') startTapGame(catId, true);
     else if (game === 'match') startMatchGame(catId);

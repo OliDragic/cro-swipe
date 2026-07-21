@@ -20,6 +20,7 @@ function startSwipeGame(catId) {
     correct: 0,
     xpGained: 0,
     wrongWords: [],
+    knownWords: [],
     card: null,
     startX: 0, startY: 0,
     dragging: false,
@@ -92,10 +93,14 @@ function makeSwipeCard(word, isCurrent) {
   const card = document.createElement('div');
   card.className = 'swipe-card';
   card.style.setProperty('--card-cat-color', catColor);
+  // Bild/Zahl NICHT vorn zeigen — es verrät die Bedeutung und verfälscht die
+  // Selbsteinschätzung (die Kinder haben es zu Recht selbst verdeckt, T-15).
+  // Erscheint erst beim Aufdecken zusammen mit der Übersetzung.
   card.innerHTML = `
+    <div class="swipe-card-mystery">🃏</div>
     ${numeral
-      ? `<div class="swipe-card-numeral">${numeral}</div>`
-      : `<div class="swipe-card-emoji">${word.emoji}</div>`}
+      ? `<div class="swipe-card-numeral swipe-card-visual">${numeral}</div>`
+      : `<div class="swipe-card-emoji swipe-card-visual">${word.emoji}</div>`}
     <div class="swipe-card-croatian">${word.croatian}</div>
     <div class="swipe-card-category" style="color:${catColor}">${worldDef?.emoji || ''} ${word.category}</div>
     <div class="swipe-card-hint">Tippe für Übersetzung</div>
@@ -123,6 +128,7 @@ function toggleReveal(card) {
   sw.revealed = !sw.revealed;
   const hintEl  = card.querySelector('.swipe-card-hint');
   const germanEl = card.querySelector('.swipe-card-german');
+  card.classList.toggle('revealed', sw.revealed);
   if (sw.revealed) {
     hintEl?.classList.remove('visible');
     germanEl?.classList.add('visible');
@@ -213,6 +219,7 @@ function commitSwipe(card, word, direction) {
     card.style.transform = 'translateX(160%) rotate(20deg)';
     sw.correct++;
     sw.xpGained += ageConfig(state.profile?.age).xpCorrect;
+    sw.knownWords.push(word);
   } else {
     card.style.transform = 'translateX(-160%) rotate(-20deg)';
     sw.xpGained += ageConfig(state.profile?.age).xpWrong;
@@ -326,6 +333,21 @@ function showSwipeResult() {
       };
     } else {
       reviewBtn.style.display = 'none';
+    }
+  }
+
+  // T-16: objektiver Kurz-Check der „ich kenn's"-Wörter — erdet die
+  // Selbsteinschätzung (Kinder überschätzen sich beim bloßen Wiedererkennen)
+  const checkBtn = document.getElementById('result-check');
+  if (checkBtn) {
+    if ((sw.knownWords || []).length >= 3) {
+      checkBtn.style.display = '';
+      checkBtn.onclick = () => {
+        document.getElementById('session-result').classList.add('hidden');
+        startWrongWordReview(shuffle([...sw.knownWords]).slice(0, 5));
+      };
+    } else {
+      checkBtn.style.display = 'none';
     }
   }
 

@@ -117,20 +117,45 @@ function showGameResult({ correct, total, xpGained, onContinue, wrongWords = [] 
   };
 }
 
-/* ─── "Nächste Übung": rotiert durch die Kern-Spielmodi derselben Kategorie,
-   damit Kinder ohne Umweg über Home/Kategorie weiterüben können ─── */
-const NEXT_GAME_CYCLE = ['swipe', 'tap', 'listen', 'match', 'puzzle'];
+/* ─── T-16 „Schlaues Üben": Die App wählt die Übungsform nach dem Lernstand
+   der Kategorie. Schwierigkeits-Treppe (Retrieval-Forschung):
+   neu → Kennenlernen (Swipe) / Erkennen (4 Möglichkeiten) → Hören →
+   harter Abruf Deutsch→Kroatisch → Satzbau. Junge Leser (≤8) bekommen
+   lese-arme Stufen. Die alten Einzelmodi bleiben unter „Mehr Übungen". ─── */
+function _smartLadder(catId) {
+  const pool = catId ? wordsForCategory(catId) : wordsForProfile();
+  const c = { new: 0, struggling: 0, learning: 0, mastered: 0 };
+  pool.forEach(w => c[getWordStatus(w.id)]++);
+  const total = pool.length || 1;
+  const young = typeof isYoungReader === 'function' && isYoungReader();
+  if (c.new / total > 0.5)                  // viel Unbekanntes: sanft einsteigen
+    return young ? ['swipe', 'listen'] : ['swipe', 'tap'];
+  if ((c.struggling + c.new) / total > 0.3) // Festigen: Erkennen + Hören
+    return young ? ['listen', 'match', 'swipe'] : ['tap', 'listen', 'match'];
+  if (c.mastered / total > 0.6)             // stark: harter Abruf + Sätze
+    return young ? ['match', 'listen'] : ['rtap', 'satz', 'puzzle'];
+  return young ? ['listen', 'match', 'swipe'] : ['tap', 'listen', 'rtap', 'match'];
+}
 
-function startNextGame() {
-  const catId = state.currentCategory?.id;
-  const cur = NEXT_GAME_CYCLE.indexOf(state.lastGameMode);
-  const next = NEXT_GAME_CYCLE[(cur + 1) % NEXT_GAME_CYCLE.length];
+function smartPractice(catId) {
   AudioManager.unlock();
-  if (next === 'swipe') startSwipeGame(catId);
-  else if (next === 'tap') startTapGame(catId);
-  else if (next === 'listen') startListenGame(catId);
-  else if (next === 'match') startMatchGame(catId);
+  const ladder = _smartLadder(catId);
+  // nicht zweimal hintereinander dieselbe Übungsform
+  const options = ladder.filter(m => m !== state.lastGameMode);
+  const pickFrom = options.length ? options : ladder;
+  const mode = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+  if (mode === 'swipe') startSwipeGame(catId);
+  else if (mode === 'tap') startTapGame(catId);
+  else if (mode === 'rtap') startTapGame(catId, true);
+  else if (mode === 'listen') startListenGame(catId);
+  else if (mode === 'match') startMatchGame(catId);
+  else if (mode === 'satz') startSatzGame(catId);
   else startPuzzleGame(catId);
+}
+
+/* „Nächste Übung" führt die schlaue Session in derselben Kategorie fort */
+function startNextGame() {
+  smartPractice(state.currentCategory?.id || null);
 }
 
 /* ─── Screen router ─── */
@@ -941,6 +966,16 @@ function openCategory(world) {
   document.getElementById('cat-total').textContent = words.length;
   const pct = words.length ? mastered / words.length * 100 : 0;
   document.getElementById('cat-mini-bar').style.width = pct + '%';
+
+  // Transparenz (T-14): zeigen, wie viele Wörter noch nie geübt wurden —
+  // die Auswahl garantiert, dass sie nach und nach drankommen
+  const freshCount = words.filter(w => getWordStatus(w.id) === 'new').length;
+  const newInfo = document.getElementById('cat-new-info');
+  if (newInfo) {
+    newInfo.textContent = freshCount > 0
+      ? `✨ Noch ${freshCount} ${freshCount === 1 ? 'neues Wort' : 'neue Wörter'} zu entdecken`
+      : '🎉 Alle Wörter schon entdeckt!';
+  }
 
   const hero = document.getElementById('cat-hero');
   hero.style.background = `linear-gradient(135deg, ${world.color}22, ${world.color}44)`;

@@ -54,6 +54,7 @@ const LocalAPI = {
       settings:      { ...this.DEFAULT_SETTINGS, ...(p.settings || {}) },
       pin:           p.pin || null,
       city:          p.city || { buildings: [], spent: 0 },
+      mastered_high: p.mastered_high ?? 0,
     };
   },
 
@@ -143,6 +144,12 @@ const LocalAPI = {
 
     for (const field of ['xp', 'streak', 'best_streak', 'last_played', 'name', 'avatar']) {
       if (field in payload) profile[field] = payload[field];
+    }
+
+    if ('mastered_high' in payload) {
+      // High-Water darf nie sinken
+      profile.mastered_high = Math.max(profile.mastered_high || 0,
+        parseInt(payload.mastered_high, 10) || 0);
     }
 
     if ('pin' in payload && /^\d{4}$/.test(String(payload.pin || ''))) {
