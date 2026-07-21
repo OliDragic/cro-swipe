@@ -73,9 +73,15 @@ function renderSwipeCard() {
 
   attachSwipeHandlers(card, current);
 
-  // Auto-play pronunciation when card appears
+  // Auto-play pronunciation when card appears.
+  // Guard: spielt nur, wenn diese Karte beim Feuern noch aktuell ist —
+  // sonst redet bei schnellem Wischen die alte Karte dazwischen.
   if (AudioManager.enabled && AudioManager.autoPlay) {
-    setTimeout(() => AudioManager.speakWord(current, 'hr'), 250);
+    const myIndex = sw.index;
+    setTimeout(() => {
+      if (state.swipe === sw && sw.index === myIndex && sw.index < sw.words.length)
+        AudioManager.speakWord(current, 'hr');
+    }, 250);
   }
 
   // Auto-show hint after delay

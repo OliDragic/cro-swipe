@@ -80,7 +80,8 @@ const AudioManager = {
   _hrVoice:   null,
   _deVoice:   null,
   _cache:     {},     // url → Audio | false (404 known)
-  _current:   null,   // currently playing Audio element
+  _current:   null,   // currently playing/loading Audio element
+  _seq:       0,      // Sequenz-Token: jede neue Anforderung entwertet alte
   _unlocked:  false,
   _activeBtn: null,   // speak button currently animating
 
@@ -136,8 +137,12 @@ const AudioManager = {
   },
 
   stop() {
+    // Entwertet alle laufenden UND noch ladenden Wiedergaben (Sequenz-Token):
+    // vorher konnte eine noch ladende Datei nicht abgebrochen werden und
+    // spielte verspätet über das nächste Wort — „doppelt/verzögert".
+    this._seq++;
     this._synth?.cancel();
-    if (this._current) { this._current.pause(); this._current = null; }
+    if (this._current) { try { this._current.pause(); } catch (_) {} this._current = null; }
     this._clearPlaying();
   },
 
@@ -145,16 +150,19 @@ const AudioManager = {
   async speakWord(word, lang = 'hr', btn = null) {
     if (!this.enabled) return;
     this.stop();
+    const seq = this._seq;
     this._setPlaying(btn);
     const played = await this._tryFile(word.id, lang);
+    if (seq !== this._seq) return;   // inzwischen wurde etwas Neues angefordert
     if (!played) this._speakSynth(lang === 'hr' ? word.croatian : word.german, lang);
 
     if (lang === 'hr' && this.playBoth) {
       const delay = this.slowMode ? 2800 : 1800;
       setTimeout(async () => {
-        if (!this.enabled) return;
-        // Auch die deutsche Übersetzung als MP3 (neuronale Stimme) — Synthese nur als Fallback
+        // Karte/Wort schon gewechselt → kein verspätetes Deutsch mehr
+        if (!this.enabled || seq !== this._seq) return;
         const ok = await this._tryFile(word.id, 'de');
+        if (seq !== this._seq) return;
         if (!ok) this._speakSynth(word.german, 'de');
       }, delay);
     }
@@ -166,9 +174,10 @@ const AudioManager = {
   async speakText(text, lang = 'hr') {
     if (!this.enabled) return;
     this.stop();
+    const seq = this._seq;
     if (lang === 'hr') {
       const ok = await this._tryUrl(`audio/sent/${this._sentHash(text)}.mp3`);
-      if (ok) return;
+      if (ok || seq !== this._seq) return;
     }
     this._speakSynth(text, lang);
   },
@@ -186,40 +195,42 @@ const AudioManager = {
 
   async _tryUrl(url) {
     if (this._cache[url] === false) return false;       // known 404
+    const seq = this._seq;
 
-    return new Promise(resolve => {
-      let audio = this._cache[url];
+    let audio = this._cache[url];
+    if (!(audio instanceof Audio)) {
+      audio = new Audio(url);
+      audio.preload = 'auto';
+      // Sofort cachen: auch wenn der erste Versuch ins Timeout läuft, lädt
+      // die Datei im Hintergrund fertig und spielt beim nächsten Mal sofort.
+      // (Vorher wurde sie beim Timeout verworfen und jedes Mal neu geladen —
+      // deshalb kam der Ton „nicht bei jedem Wort".)
+      this._cache[url] = audio;
+    }
+    try { audio.currentTime = 0; } catch (_) {}
+    audio.playbackRate = this.slowMode ? 0.8 : 1.0;
+    audio.onended = () => this._clearPlaying();
+    // Schon VOR play() als „aktuell" registrieren, damit stop() auch eine
+    // noch ladende Wiedergabe abbrechen kann
+    this._current = audio;
+
+    const ok = await new Promise(resolve => {
       let settled = false;
-      const done = (ok) => {
-        if (settled) return;
-        settled = true;
-        if (ok) {
-          this._cache[url] = audio;
-          this._current = audio;
-          audio.onended = () => this._clearPlaying();
-        } else {
-          // Abort the audio so it doesn't play after TTS fallback has started
-          if (audio instanceof Audio) { audio.pause(); audio.src = ''; }
-        }
-        resolve(ok);
-      };
-
-      if (!(audio instanceof Audio)) {
-        audio = new Audio(url);
-        audio.onerror = () => { this._cache[url] = false; done(false); };
-      } else {
-        audio.currentTime = 0;
-      }
-      // Slow mode: clamp playbackRate (MP3 still intelligible at 0.8×)
-      audio.playbackRate = this.slowMode ? 0.8 : 1.0;
-
-      audio.play()
-        .then(() => done(true))
-        .catch(() => done(false));
-
-      // Safety timeout — increased to 2.5s to accommodate slow first-load on iOS
+      const done = r => { if (!settled) { settled = true; resolve(r); } };
+      audio.onerror = () => { this._cache[url] = false; done(false); };
+      audio.play().then(() => done(true)).catch(() => done(false));
+      // Safety timeout — bei langsamem Erst-Laden greift der Synthese-Fallback
       setTimeout(() => done(false), 2500);
     });
+
+    if (seq !== this._seq) {
+      // Überholt: nicht (weiter)spielen, aber als „erledigt" melden,
+      // damit kein veralteter Synthese-Fallback hinterherredet
+      try { audio.pause(); } catch (_) {}
+      return true;
+    }
+    if (!ok) { try { audio.pause(); } catch (_) {} }
+    return ok;
   },
 
   _speakSynth(text, lang) {

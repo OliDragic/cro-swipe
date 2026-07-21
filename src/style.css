@@ -2021,6 +2021,11 @@ button, input, select {
 .unlock-toast-cats { font-size: .85rem; font-weight: 600; opacity: .9; }
 
 /* Wrong words in swipe result */
+.result-wrong-words.hidden { display: none; }
+#result-check {
+  background: linear-gradient(135deg, #f2c94c, #e0a52e);
+  color: #4a3200;
+}
 .result-wrong-words {
   width: 100%;
   margin: 12px 0;
