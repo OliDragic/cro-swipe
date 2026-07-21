@@ -299,7 +299,37 @@ function cityCoins() {
 
 function cityPopulation() {
   const mastered = masteredCountAll(state.profile || {});
-  return mastered * 3 + _cityState().buildings.length * 2;
+  // Jede Ausbaustufe bringt +2 Einwohner (Stufe 1 = 2, Stufe 3 = 6)
+  const fromBuildings = _cityState().buildings.reduce((n, b) => n + 2 * (b.level || 1), 0);
+  return mastered * 3 + fromBuildings;
+}
+
+/* ─── T-13: Ausbaustufen (1 → 2 → 3) ───
+   Stufe 2 kostet 75 % des Baupreises, Stufe 3 dann 125 % — die Stadt bleibt
+   ein langfristiges Sparziel. Optik: Gebäude wächst leicht, bekommt einen
+   Blumengarten (Stufe 2) und goldenes Pflaster + Glanz (Stufe 3). */
+const CITY_MAX_LEVEL = 3;
+
+function _upgradeCost(def, currentLevel) {
+  const factor = currentLevel === 1 ? 0.75 : 1.25;
+  return Math.round(def.cost * factor / 10) * 10;
+}
+
+function _levelDecoSVG(lvl) {
+  let deco = '';
+  if (lvl >= 2) deco += `
+    <g class="lvl-deco">
+      <g fill="#e5568c"><circle cx="-26" cy="1" r="2"/><circle cx="-31" cy="-1" r="1.7"/><circle cx="27" cy="0" r="2"/><circle cx="32" cy="-2" r="1.7"/></g>
+      <g fill="#f2c94c"><circle cx="-28.5" cy="-3.5" r="1.5"/><circle cx="29.5" cy="-4.5" r="1.5"/></g>
+      <g stroke="#4e8a4a" stroke-width="1.4" fill="none"><path d="M-26 1 q-1 -4 -2 -5 M27 0 q1 -4 2 -5"/></g>
+    </g>`;
+  if (lvl >= 3) deco += `
+    <g class="lvl-deco">
+      <ellipse cx="0" cy="1" rx="34" ry="7" fill="none" stroke="#f2c94c" stroke-width="2.5" opacity=".75"/>
+      <text x="-34" y="-30" class="lvl-sparkle">✨</text>
+      <text x="26" y="-16" class="lvl-sparkle lvl-sparkle-b">✨</text>
+    </g>`;
+  return deco;
 }
 
 function _buildingDef(typeId) {
@@ -488,6 +518,10 @@ function renderCity() {
       g.classList.add('built');
       // Boot schaukelt auf dem Wasser
       if (s.type === 'brod') g.classList.add('bob');
+      // Ausbaustufe: Gebäude wächst pro Stufe leicht (T-13)
+      const lvl = Math.min(CITY_MAX_LEVEL, built.level || 1);
+      if (lvl > 1) g.setAttribute('transform',
+        `translate(${s.x} ${s.y}) scale(${s.scale * (1 + (lvl - 1) * 0.08)})`);
       // Kontaktschatten + Grasbüschel verwurzeln das Gebäude im Boden
       // (kein Gras auf Stein/Sand/Wasser: Riva, Strand, Brücke, Boot)
       const onGrass = !['brod', 'luka', 'plaza', 'most'].includes(s.type);
@@ -498,7 +532,7 @@ function renderCity() {
            <path d="M-20 2 q-2 -5 -4 -6 M-18 2 q0 -5 .5 -7 M-16 2 q2 -4 4 -5"/>
            <path d="M15 3 q-2 -4 -3.5 -5 M17 3 q0 -5 .5 -6 M19 3 q2 -4 3.5 -4.5"/>
          </g>` : '';
-      g.innerHTML = shadow + (CITY_ART[s.type] || '') + grass;
+      g.innerHTML = shadow + (CITY_ART[s.type] || '') + grass + _levelDecoSVG(lvl);
       g.addEventListener('click', () => _showBuildingInfo(def, s.spot));
     } else {
       const lock = _cityLockReason(def);
@@ -603,13 +637,38 @@ function _openBuildConfirm(def, spot) {
   sheet.classList.remove('hidden');
 }
 
+/* T-13: Gebäude eine Stufe ausbauen */
+async function _upgradeBuilding(def, spot) {
+  const city = _cityState();
+  const entry = city.buildings.find(b => b.spot === spot);
+  if (!entry) return;
+  const lvl = Math.min(CITY_MAX_LEVEL, entry.level || 1);
+  if (lvl >= CITY_MAX_LEVEL) return;
+  const cost = _upgradeCost(def, lvl);
+  if (cityCoins() < cost) return;
+
+  city.spent += cost;
+  entry.level = lvl + 1;
+  // Ausbau zählt zum bezahlten Preis → Abriss erstattet weiterhin die Hälfte
+  entry.paid = (entry.paid ?? Math.round(def.cost / 4)) + cost;
+  document.getElementById('city-info-sheet').classList.add('hidden');
+  renderCity();
+  showConfetti(24);
+  SoundManager.correct();
+  AudioManager.unlock();
+  AudioManager.speakText(def.hr, 'hr');
+  _cityToast(`⬆️ ${def.emoji} ${def.hr} ist jetzt Stufe ${entry.level}!`);
+  await saveProfile();
+  renderCity();
+}
+
 async function _buildBuilding(def, spot) {
   const city = _cityState();
   if (cityCoins() < def.cost || _cityLockReason(def)) return;
   if (city.buildings.find(b => b.spot === spot)) return;
 
   city.spent += def.cost;
-  city.buildings.push({ type: def.id, spot, paid: def.cost });
+  city.buildings.push({ type: def.id, spot, paid: def.cost, level: 1 });
   document.getElementById('city-build-sheet').classList.add('hidden');
   renderCity();
   showConfetti(20);
@@ -630,6 +689,33 @@ function _showBuildingInfo(def, spot) {
   document.getElementById('ci-emoji').textContent = def.emoji;
   document.getElementById('ci-hr').textContent = def.hr;
   document.getElementById('ci-de').textContent = def.de;
+
+  // T-13: Ausbaustufe anzeigen + Ausbauen-Knopf
+  const city0 = _cityState();
+  const entry = city0.buildings.find(b => b.spot === spot);
+  const lvl = Math.min(CITY_MAX_LEVEL, entry?.level || 1);
+  const levelEl = document.getElementById('ci-level');
+  const upInfo = document.getElementById('ci-upgrade-info');
+  const upBtn = document.getElementById('ci-upgrade');
+  if (levelEl) levelEl.textContent = '⭐'.repeat(lvl) + '☆'.repeat(CITY_MAX_LEVEL - lvl);
+  if (upBtn && upInfo) {
+    if (lvl >= CITY_MAX_LEVEL) {
+      upInfo.textContent = 'Voll ausgebaut — schöner geht es nicht! 🏆';
+      upBtn.style.display = 'none';
+    } else {
+      const cost = _upgradeCost(def, lvl);
+      const coins = cityCoins();
+      if (coins >= cost) {
+        upInfo.textContent = `Stufe ${lvl + 1}: mehr Glanz und +2 Einwohner`;
+        upBtn.style.display = '';
+        upBtn.textContent = `⬆️ Ausbauen auf Stufe ${lvl + 1} (🪙 ${cost})`;
+        upBtn.onclick = () => _upgradeBuilding(def, spot);
+      } else {
+        upInfo.textContent = `Stufe ${lvl + 1} kostet 🪙 ${cost} — dir fehlen noch ${cost - coins}. Weiter üben! 💪`;
+        upBtn.style.display = 'none';
+      }
+    }
+  }
 
   document.getElementById('ci-speak').onclick = () => {
     AudioManager.unlock();
