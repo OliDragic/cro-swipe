@@ -315,8 +315,28 @@ const CITY_MAX_LEVEL = 3;
    wird auf die nächstkleinere vorhandene zurückgefallen.
    w/h in Szenen-Einheiten, Fußpunkt bei y=0. */
 const CITY_IMG_ART = {
-  kuca:   { 1: { f: 'kuca-1.png',   w: 60, h: 65 }, 2: { f: 'kuca-2.png', w: 64, h: 69 } },
-  konoba: { 1: { f: 'konoba-1.png', w: 60, h: 87 } },
+  kuca:       { 1: { f: 'kuca-1.png',       w: 60, h: 65 }, 2: { f: 'kuca-2.png', w: 64, h: 69 } },
+  konoba:     { 1: { f: 'konoba-1.png',     w: 60, h: 87 } },
+  crkva:      { 1: { f: 'crkva-1.png',      w: 60, h: 65 } },
+  skola:      { 1: { f: 'skola-1.png',      w: 56, h: 61 } },
+  trznica:    { 1: { f: 'trznica-1.png',    w: 58, h: 48 } },
+  fontana:    { 1: { f: 'fontana-1.png',    w: 50, h: 38 } },
+  svjetionik: { 1: { f: 'svjetionik-1.png', w: 34, h: 66 } },
+  dvorac:     { 1: { f: 'dvorac-1.png',     w: 76, h: 70 } },
+  zidine:     { 1: { f: 'zidine-1.png',     w: 68, h: 33 } },
+  pekara:     { 1: { f: 'pekara-1.png',     w: 56, h: 50 } },
+  kino:       { 1: { f: 'kino-1.png',       w: 56, h: 47 } },
+  muzej:      { 1: { f: 'muzej-1.png',      w: 66, h: 45 } },
+  kamp:       { 1: { f: 'kamp-1.png',       w: 52, h: 43 } },
+  igraliste:  { 1: { f: 'igraliste-1.png',  w: 58, h: 40 } },
+  most:       { 1: { f: 'most-1.png',       w: 62, h: 33 } },
+  zoo:        { 1: { f: 'zoo-1.png',        w: 56, h: 45 } },
+  luka:       { 1: { f: 'luka-1.png',       w: 54, h: 46 } },
+  brod:       { 1: { f: 'brod-1.png',       w: 34, h: 45 } },
+  plaza:      { 1: { f: 'plaza-1.png',      w: 44, h: 40 } },
+  park:       { 1: { f: 'park-1.png',       w: 52, h: 52 } },
+  stablo:     { 1: { f: 'stablo-1.png',     w: 38, h: 45 } },
+  cvijece:    { 1: { f: 'cvijece-1.png',    w: 44, h: 30 } },
 };
 
 function _imgArtFor(type, lvl) {
@@ -447,77 +467,29 @@ function _citySceneSVG() {
 
 /* ─── Bauplatz-Darstellung: fest mit dem Boden verbunden statt schwebender Kreise ─── */
 function _plotSignSVG(def, affordable) {
-  // Holzschild mit Preis am Rand des Fundaments
+  // Gemaltes Holzschild; der Preis wird als Text daraufgelegt
   return `
-    <g class="plot-sign ${affordable ? 'affordable' : 'expensive'}" transform="translate(21 -4)">
-      <rect x="-1.5" y="-9" width="3" height="12" rx="1" fill="#7a5230"/>
-      <rect x="-17" y="-24" width="34" height="16" rx="4" class="plot-sign-board"/>
-      <rect x="-15" y="-22" width="30" height="12" rx="3" fill="none" stroke="#8a5c34" stroke-width="1" opacity=".7"/>
-      <text x="0" y="-12.5" text-anchor="middle" class="plot-sign-text">🪙${def.cost}</text>
+    <g class="plot-sign ${affordable ? 'affordable' : 'expensive'}" transform="translate(24 0)">
+      <image href="./buildings/plot-schild.png" x="-13" y="-30" width="26" height="30"/>
+      <text x="0" y="-19" text-anchor="middle" class="plot-sign-text">🪙${def.cost}</text>
     </g>`;
 }
-function _plotThornsSVG(flip) {
-  // Dorngestrüpp überwuchert den Platz; kleiner Stein mit Schlüsselloch erklärt die Sperre
-  // (flip variiert die Ranken, damit nicht alle Plätze identisch aussehen)
-  return `
-    <g class="plot-thorns" transform="scale(${flip ? -1 : 1} 1)">
-      <g fill="none" stroke="#44633c" stroke-width="3" stroke-linecap="round">
-        <path d="M-26 -5 Q-14 -22 2 -12 Q14 -24 26 -7"/>
-        <path d="M-21 -1 Q-6 -15 10 -8 Q20 -16 26 -2"/>
-      </g>
-      <g fill="none" stroke="#5d8350" stroke-width="1.8" stroke-linecap="round">
-        <path d="M-16 -12 Q0 -3 15 -13"/>
-        <path d="M-24 -8 l-3 -3 M-8 -15 l-1 -4 M8 -14 l2 -4 M20 -12 l3 -3 M0 -9 l1 -4"/>
-      </g>
-      <ellipse cx="0" cy="-2" rx="7" ry="5.5" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
-      <circle cx="0" cy="-4" r="1.8" fill="#4c463e"/>
-      <path d="M-1 -3 L1 -3 L1.6 .5 L-1.6 .5 Z" fill="#4c463e"/>
-    </g>`;
-}
-function _plotGateSVG() {
-  // Verwittertes Eisentor für Premium-Plätze (reqTotal)
-  return `
-    <g class="plot-gate">
-      <path d="M-15 -20 Q0 -31 15 -20" fill="none" stroke="#3d4450" stroke-width="2.5"/>
-      <g stroke="#3d4450" stroke-width="1.8">
-        <line x1="-10" y1="-23" x2="-10" y2="-3"/><line x1="-5" y1="-26" x2="-5" y2="-3"/>
-        <line x1="0" y1="-27" x2="0" y2="-3"/><line x1="5" y1="-26" x2="5" y2="-3"/>
-        <line x1="10" y1="-23" x2="10" y2="-3"/>
-      </g>
-      <line x1="-14" y1="-12" x2="14" y2="-12" stroke="#3d4450" stroke-width="1.6"/>
-      <rect x="-21" y="-26" width="6" height="24" rx="2" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
-      <rect x="15" y="-26" width="6" height="24" rx="2" fill="#9b948a" stroke="#7c766c" stroke-width="1"/>
-      <circle cx="0" cy="-11" r="3.4" fill="#59616e"/>
-      <circle cx="0" cy="-12" r="1.2" fill="#20242c"/>
-      <path d="M-.8 -11.4 L.8 -11.4 L1.3 -8.6 L-1.3 -8.6 Z" fill="#20242c"/>
-      <path d="M-19 -5 q4 -4 8 -1 M13 -8 q4 -3 7 0" fill="none" stroke="#5d8350" stroke-width="1.6" stroke-linecap="round"/>
-    </g>`;
-}
+
 function _plotGhostSVG(def, s, lock, affordable) {
   if (s.type === 'brod') {
-    // Liegeplatz im Wasser: Boje markiert ihn, kein Erdfundament
+    // Liegeplatz im Wasser: gemalte Boje (gesperrt = ausgegraut)
     return `
-      <g class="plot-buoy">
-        <ellipse cx="0" cy="-1" rx="18" ry="5.5" class="plot-water-ring"/>
-        <path d="M-5 -3 L5 -3 L3 -20 L-3 -20 Z" fill="${lock ? '#98a2ad' : '#e05e5e'}"/>
-        <path d="M-4.4 -9 L4.3 -9 L3.8 -13 L-3.9 -13 Z" fill="#fff" opacity=".9"/>
-        <circle cx="0" cy="-22" r="3" fill="${lock ? '#7c8894' : '#c9553d'}"/>
-        ${lock ? `<circle cx="0" cy="-15" r="2.6" fill="#59616e"/><circle cx="0" cy="-15.6" r="1" fill="#20242c"/><path d="M-.6 -15.2 L.6 -15.2 L1 -13 L-1 -13 Z" fill="#20242c"/>`
-               : _plotSignSVG(def, affordable)}
-      </g>`;
+      <image href="./buildings/plot-boje.png" x="-13" y="-15" width="26" height="20"
+             class="${lock ? 'plot-locked-img' : ''}"/>
+      ${lock ? '' : _plotSignSVG(def, affordable)}`;
   }
-  // Vorbereitete Baustelle: leicht eingesenkte, geräumte Erde mit Fundament-Umriss
-  const dirt = `
-    <ellipse cx="0" cy="-8" rx="30" ry="13" class="plot-dirt"/>
-    <ellipse cx="0" cy="-8" rx="30" ry="13" class="plot-dirt-edge"/>
-    <path d="M-27 -13 Q0 -23 27 -13" class="plot-inner-shade"/>
-    <path d="M-20 -6 q4 -2 8 0 M0 -14 q4 -2 8 0 M6 -3 q4 -2 8 0 M-12 -12 q3 -1.5 6 0" class="plot-rake"/>
-    <ellipse cx="-25" cy="-1" rx="3" ry="2" fill="#b8b0a4"/>
-    <ellipse cx="25" cy="-14" rx="2.5" ry="1.8" fill="#a89f92"/>
-    <ellipse cx="18" cy="-1" rx="2" ry="1.4" fill="#cfc8bb"/>
-    ${_decoTuft(-31, -4, 0.9)}${_decoTuft(30, -10, 0.85)}`;
+  // Geräumte Erdfläche; gesperrte Plätze sind überwuchert (Dorngestrüpp)
+  // bzw. mit einem Eisentor versperrt (Premium/reqTotal)
+  const dirt = `<image href="./buildings/plot-erde.png" x="-33" y="-17" width="66" height="20"/>`;
   if (!lock) return dirt + _plotSignSVG(def, affordable);
-  return dirt + (def.reqTotal ? _plotGateSVG() : _plotThornsSVG(s.spot.length % 2 === 1));
+  return dirt + (def.reqTotal
+    ? `<image href="./buildings/plot-tor.png" x="-24" y="-24" width="48" height="26"/>`
+    : `<image href="./buildings/plot-dorn.png" x="-28" y="-27" width="56" height="29"/>`);
 }
 
 function renderCity() {

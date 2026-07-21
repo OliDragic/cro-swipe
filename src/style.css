@@ -750,6 +750,8 @@ button, input, select {
   max-width: 360px;
   text-align: center;
 }
+/* Knöpfe im Ergebnis berühren sich nicht (Kurz-Check ↔ Nächste Übung) */
+.result-card .primary-btn, .result-card .secondary-btn { margin-top: 10px; }
 .result-card.compact { padding: 24px 20px; }
 .result-emoji { font-size: 3.5rem; margin-bottom: 12px; }
 .result-card h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: 20px; }
@@ -3305,7 +3307,8 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .plot-sign-board { fill: #a4713f; stroke: #6b4a2e; stroke-width: 1.5; }
 .plot-sign-text { font-size: 11px; font-weight: 800; fill: #fff7e8; }
 .plot-sign.affordable .plot-sign-board { stroke: #f2c94c; }
-.plot-sign.affordable { animation: sign-ready 2.4s ease-in-out infinite; transform-origin: 21px 0; }
+.plot-sign.affordable { animation: sign-ready 2.4s ease-in-out infinite; transform-origin: 24px 0; }
+.plot-locked-img { filter: grayscale(.75) opacity(.85); }
 @keyframes sign-ready { 0%,100% { scale: 1; } 50% { scale: 1.07; } }
 .plot-sign.expensive { opacity: .85; }
 /* Boje für den Boots-Liegeplatz */

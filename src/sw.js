@@ -5,7 +5,7 @@
    the domain root (local Flask) and under a subpath (GitHub Pages).
    ═══════════════════════════════════════════════════════ */
 
-const CACHE = 'cro-swipe-v26';
+const CACHE = 'cro-swipe-v27';
 
 const PRECACHE = [
   './',
@@ -21,6 +21,31 @@ const PRECACHE = [
   './buildings/kuca-1.png',
   './buildings/kuca-2.png',
   './buildings/konoba-1.png',
+  './buildings/crkva-1.png',
+  './buildings/skola-1.png',
+  './buildings/trznica-1.png',
+  './buildings/fontana-1.png',
+  './buildings/svjetionik-1.png',
+  './buildings/dvorac-1.png',
+  './buildings/zidine-1.png',
+  './buildings/pekara-1.png',
+  './buildings/kino-1.png',
+  './buildings/muzej-1.png',
+  './buildings/kamp-1.png',
+  './buildings/igraliste-1.png',
+  './buildings/most-1.png',
+  './buildings/zoo-1.png',
+  './buildings/luka-1.png',
+  './buildings/brod-1.png',
+  './buildings/plaza-1.png',
+  './buildings/park-1.png',
+  './buildings/stablo-1.png',
+  './buildings/cvijece-1.png',
+  './buildings/plot-erde.png',
+  './buildings/plot-schild.png',
+  './buildings/plot-dorn.png',
+  './buildings/plot-tor.png',
+  './buildings/plot-boje.png',
   './ui.js',
   './feedback.js',
   './app.js',
