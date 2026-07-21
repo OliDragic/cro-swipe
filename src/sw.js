@@ -5,7 +5,7 @@
    the domain root (local Flask) and under a subpath (GitHub Pages).
    ═══════════════════════════════════════════════════════ */
 
-const CACHE = 'cro-swipe-v23';
+const CACHE = 'cro-swipe-v24';
 
 const PRECACHE = [
   './',
@@ -18,6 +18,9 @@ const PRECACHE = [
   './engine.js',
   './city.js',
   './city-bg.jpg',
+  './buildings/kuca-1.png',
+  './buildings/kuca-2.png',
+  './buildings/konoba-1.png',
   './ui.js',
   './feedback.js',
   './app.js',

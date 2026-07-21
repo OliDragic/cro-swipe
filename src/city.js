@@ -310,13 +310,40 @@ function cityPopulation() {
    Blumengarten (Stufe 2) und goldenes Pflaster + Glanz (Stufe 3). */
 const CITY_MAX_LEVEL = 3;
 
+/* T-18: Gemalte Gebäude-Sprites (im Stil des Panoramas, von Oliver
+   generiert, freigestellt). Schlüssel = Ausbaustufe; fehlt eine Stufe,
+   wird auf die nächstkleinere vorhandene zurückgefallen.
+   w/h in Szenen-Einheiten, Fußpunkt bei y=0. */
+const CITY_IMG_ART = {
+  kuca:   { 1: { f: 'kuca-1.png',   w: 60, h: 65 }, 2: { f: 'kuca-2.png', w: 64, h: 69 } },
+  konoba: { 1: { f: 'konoba-1.png', w: 60, h: 87 } },
+};
+
+function _imgArtFor(type, lvl) {
+  const set = CITY_IMG_ART[type];
+  if (!set) return null;
+  for (let l = lvl; l >= 1; l--) if (set[l]) return set[l];
+  return null;
+}
+
 function _upgradeCost(def, currentLevel) {
   const factor = currentLevel === 1 ? 0.75 : 1.25;
   return Math.round(def.cost * factor / 10) * 10;
 }
 
-function _levelDecoSVG(lvl) {
+function _levelDecoSVG(lvl, hasImg) {
   let deco = '';
+  // Gemalte Sprites bringen ihren Garten selbst mit — Vektor-Blumen nur
+  // für die alten Vektor-Gebäude
+  if (hasImg && lvl >= 3) {
+    return `
+    <g class="lvl-deco">
+      <ellipse cx="0" cy="1" rx="36" ry="7" fill="none" stroke="#f2c94c" stroke-width="2.5" opacity=".75"/>
+      <text x="-36" y="-34" class="lvl-sparkle">✨</text>
+      <text x="28" y="-18" class="lvl-sparkle lvl-sparkle-b">✨</text>
+    </g>`;
+  }
+  if (hasImg) return '';
   if (lvl >= 2) deco += `
     <g class="lvl-deco">
       <g fill="#e5568c"><circle cx="-26" cy="1" r="2"/><circle cx="-31" cy="-1" r="1.7"/><circle cx="27" cy="0" r="2"/><circle cx="32" cy="-2" r="1.7"/></g>
@@ -522,9 +549,14 @@ function renderCity() {
       const lvl = Math.min(CITY_MAX_LEVEL, built.level || 1);
       if (lvl > 1) g.setAttribute('transform',
         `translate(${s.x} ${s.y}) scale(${s.scale * (1 + (lvl - 1) * 0.08)})`);
+      // Gemaltes Sprite (T-18), sonst Vektor-Zeichnung
+      const img = _imgArtFor(s.type, lvl);
+      const art = img
+        ? `<image href="./buildings/${img.f}" x="${-img.w / 2}" y="${-img.h}" width="${img.w}" height="${img.h}"/>`
+        : (CITY_ART[s.type] || '');
       // Kontaktschatten + Grasbüschel verwurzeln das Gebäude im Boden
-      // (kein Gras auf Stein/Sand/Wasser: Riva, Strand, Brücke, Boot)
-      const onGrass = !['brod', 'luka', 'plaza', 'most'].includes(s.type);
+      // (kein Gras auf Stein/Sand/Wasser; Sprites bringen ihre Büsche mit)
+      const onGrass = !img && !['brod', 'luka', 'plaza', 'most'].includes(s.type);
       const shadow = s.type === 'brod' ? '' :
         `<ellipse cx="0" cy="0" rx="27" ry="6" class="spot-shadow"/>`;
       const grass = onGrass ?
@@ -532,7 +564,7 @@ function renderCity() {
            <path d="M-20 2 q-2 -5 -4 -6 M-18 2 q0 -5 .5 -7 M-16 2 q2 -4 4 -5"/>
            <path d="M15 3 q-2 -4 -3.5 -5 M17 3 q0 -5 .5 -6 M19 3 q2 -4 3.5 -4.5"/>
          </g>` : '';
-      g.innerHTML = shadow + (CITY_ART[s.type] || '') + grass + _levelDecoSVG(lvl);
+      g.innerHTML = shadow + art + grass + _levelDecoSVG(lvl, !!img);
       g.addEventListener('click', () => _showBuildingInfo(def, s.spot));
     } else {
       const lock = _cityLockReason(def);
