@@ -431,7 +431,7 @@ function renderWordOfTheDay() {
   const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
   const word = pool[dayOfYear % pool.length];
 
-  document.getElementById('wotd-emoji').textContent = word.emoji;
+  document.getElementById('wotd-emoji').textContent = wordVisual(word);
   document.getElementById('wotd-hr').textContent = word.croatian;
   document.getElementById('wotd-de').textContent = word.german;
 
@@ -1050,7 +1050,7 @@ function renderProgress() {
     const chip = document.createElement('div');
     chip.className = 'word-chip';
     chip.setAttribute('title', 'Tippe zum Hören');
-    chip.innerHTML = `${word.emoji} ${word.croatian}<span class="chip-sub"> ${word.german}</span>`;
+    chip.innerHTML = `${wordVisual(word)} ${word.croatian}<span class="chip-sub"> ${word.german}</span>`;
     chip.addEventListener('click', () => {
       AudioManager.unlock();
       AudioManager.speakWord(word, 'hr');
@@ -1104,7 +1104,7 @@ function renderVocabBrowser() {
       const row = document.createElement('div');
       row.className = `vocab-row vocab-row-${status}`;
       row.innerHTML = `
-        <span class="vocab-emoji">${word.emoji}</span>
+        <span class="vocab-emoji">${wordVisual(word)}</span>
         <span class="vocab-de">${word.german}</span>
         <span class="vocab-arrow">→</span>
         <span class="vocab-hr">${word.croatian}</span>
@@ -1341,7 +1341,7 @@ function _renderParentProfile(p) {
     weak.forEach(({ word, acc }) => {
       weakSection.innerHTML += `
         <div class="pd-weak-item">
-          <span class="pd-weak-emoji">${word.emoji}</span>
+          <span class="pd-weak-emoji">${wordVisual(word)}</span>
           <span class="pd-weak-name">${word.german} → ${word.croatian}</span>
           <span class="pd-weak-accuracy">${Math.round(acc*100)}%</span>
         </div>`;

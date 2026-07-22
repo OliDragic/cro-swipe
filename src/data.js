@@ -71,6 +71,13 @@ function getWordNumeral(word) {
   return ZAHLEN_NUMERAL[word.croatian] || null;
 }
 
+/* Sichtbares Symbol eines Worts: bei Zahlen die Ziffer (eindeutig!),
+   sonst das Emoji. Ab 11 gibt es keine eindeutigen Zahl-Emojis mehr —
+   „13" ist klar, 🔢 war Raterei. */
+function wordVisual(word) {
+  return getWordNumeral(word) || word.emoji;
+}
+
 /* ─── Category / World definitions ─── */
 const WORLDS = [
   { id: 'Hallo Kroatien', name: 'Hallo Kroatien!', emoji: '🇭🇷', color: 'var(--cat-hallo)'       },

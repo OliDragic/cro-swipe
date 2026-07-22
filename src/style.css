@@ -3309,6 +3309,12 @@ html.dark .category-card.complete { background: linear-gradient(135deg, var(--ca
 .plot-sign.affordable .plot-sign-board { stroke: #f2c94c; }
 .plot-sign.affordable { animation: sign-ready 2.4s ease-in-out infinite; transform-origin: 24px 0; }
 .plot-locked-img { filter: grayscale(.75) opacity(.85); }
+/* Zahlen als Ziffern: klar lesbar statt 🔢-Raten */
+.choice-numeral, .match-numeral {
+  font-weight: 900; color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.match-card.match-numeral { font-size: 1.5rem; }
 @keyframes sign-ready { 0%,100% { scale: 1; } 50% { scale: 1.07; } }
 .plot-sign.expensive { opacity: .85; }
 /* Boje für den Boots-Liegeplatz */

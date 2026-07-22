@@ -320,7 +320,7 @@ function showSwipeResult() {
   const wrong = sw.wrongWords.slice(0, 6); // max 6 to avoid overflow
   if (wrong.length && wrongContainer && wrongList) {
     wrongList.innerHTML = wrong.map(w =>
-      `<div class="result-wrong-chip">${w.emoji} <strong>${w.croatian}</strong> = ${w.german}</div>`
+      `<div class="result-wrong-chip">${wordVisual(w)} <strong>${w.croatian}</strong> = ${w.german}</div>`
     ).join('');
     wrongContainer.classList.remove('hidden');
   } else if (wrongContainer) {
@@ -497,8 +497,9 @@ function renderTapQuestion() {
     const btn = document.createElement('button');
     btn.dataset.wid = choice.id;
     if (useEmojiChoices) {
+      const num = getWordNumeral(choice);
       btn.className = 'choice-btn choice-btn-emoji';
-      btn.innerHTML = `<span class="choice-emoji">${choice.emoji}</span><span class="choice-label">${choice.german}</span>`;
+      btn.innerHTML = `<span class="choice-emoji${num ? ' choice-numeral' : ''}">${num || choice.emoji}</span><span class="choice-label">${choice.german}</span>`;
     } else {
       btn.className = 'choice-btn';
       btn.textContent = reversed ? choice.croatian : choice.german;
@@ -509,12 +510,14 @@ function renderTapQuestion() {
 }
 
 /* Bild-Antworten funktionieren nur, wenn jedes Wort ein eigenes,
-   aussagekräftiges Emoji hat (kein Platzhalter, keine Dubletten). */
+   aussagekräftiges Symbol hat (kein Platzhalter, keine Dubletten).
+   Zahlen zählen über ihre Ziffer — die ist immer eindeutig. */
 function _distinctEmojis(choices) {
   const seen = new Set();
   for (const c of choices) {
-    if (!c.emoji || c.emoji === '🔸' || seen.has(c.emoji)) return false;
-    seen.add(c.emoji);
+    const v = wordVisual(c);
+    if (!v || v === '🔸' || seen.has(v)) return false;
+    seen.add(v);
   }
   return true;
 }
@@ -573,10 +576,12 @@ function startMatchGame(catId) {
     return;
   }
 
-  // Each word becomes 2 cards: emoji card + croatian word card
+  // Each word becomes 2 cards: visual card (Ziffer bei Zahlen, sonst Emoji)
+  // + croatian word card — 🔢-Raten bei Zahlen ab 11 ist damit vorbei
   const cards = [];
   wordPool.forEach(word => {
-    cards.push({ id: word.id, type: 'emoji', display: word.emoji, word });
+    const num = getWordNumeral(word);
+    cards.push({ id: word.id, type: 'emoji', display: num || word.emoji, numeral: !!num, word });
     cards.push({ id: word.id, type: 'text', display: word.croatian, word });
   });
 
@@ -599,7 +604,7 @@ function renderMatchGrid() {
 
   state.match.cards.forEach((card, i) => {
     const el = document.createElement('button');
-    el.className = 'match-card';
+    el.className = card.numeral ? 'match-card match-numeral' : 'match-card';
     el.dataset.index = i;
     el.textContent = card.display;
     el.addEventListener('click', () => handleMatchClick(i, el));
@@ -810,7 +815,7 @@ function renderCharsGuide() {
         );
         const chip = document.createElement('button');
         chip.className = 'guide-example-chip';
-        chip.innerHTML = `${w.emoji} <span class="chip-hr">${highlighted}</span> <span class="chip-de">= ${w.german}</span>`;
+        chip.innerHTML = `${wordVisual(w)} <span class="chip-hr">${highlighted}</span> <span class="chip-de">= ${w.german}</span>`;
         chip.addEventListener('click', () => { AudioManager.unlock(); AudioManager.speakWord(w, 'hr'); });
         exSection.appendChild(chip);
       });
@@ -861,7 +866,7 @@ function renderCharQuestion() {
   document.getElementById('chars-progress').textContent = `${idx + 1}/${questions.length}`;
   document.getElementById('chars-word-display').innerHTML =
     `${q.before}<span class="chars-blank" id="chars-blank">_</span>${q.after}`;
-  document.getElementById('chars-translation').textContent = `${word.emoji}  ${word.german}`;
+  document.getElementById('chars-translation').textContent = `${wordVisual(word)}  ${word.german}`;
   // Auto-play the word so kids hear the special character
   if (AudioManager.enabled && AudioManager.autoPlay) {
     setTimeout(() => AudioManager.speakWord(word, 'hr'), 300);
@@ -1220,8 +1225,9 @@ function renderListenQuestion() {
     const btn = document.createElement('button');
     btn.dataset.wid = choice.id;
     if (useEmojiChoices) {
+      const num = getWordNumeral(choice);
       btn.className = 'choice-btn choice-btn-emoji';
-      btn.innerHTML = `<span class="choice-emoji">${choice.emoji}</span><span class="choice-label">${choice.german}</span>`;
+      btn.innerHTML = `<span class="choice-emoji${num ? ' choice-numeral' : ''}">${num || choice.emoji}</span><span class="choice-label">${choice.german}</span>`;
     } else {
       btn.className = 'choice-btn';
       btn.textContent = choice.german;
